@@ -5,7 +5,6 @@ import co.ppk.service.APIManager;
 import co.ppk.service.BusinessManager;
 import co.ppk.utilities.HourGeneration;
 import co.ppk.utilities.MessageHelper;
-import co.ppk.utilities.TimeCalculation;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -285,6 +284,40 @@ public class BusiinessManagerImpl implements BusinessManager{
 
         }
         return "Prueba Confirmacion de Fin";
+    }
+
+    @Override
+    public String updateBillboard(String queryText) {
+
+        String[] data = messageHelper.asArray(queryText);
+        if(4 != data.length) {
+            /**TODO: Update this error message */
+            return REQUEST_DATA_ERROR_CUSTOMER;
+        }
+        BillboardDto currentBillboard = apiManager.getBillboardByCode(data[1]);
+
+        BillboardDto newBillboard = new BillboardDto();
+
+        newBillboard.setId(currentBillboard.getId());
+        newBillboard.setCode(data[2]);
+        newBillboard.setAddress(data[3]);
+
+        apiManager.updateBillboard(newBillboard);
+
+        /**TODO: Update this success message */
+        return START_TRANSACTION_SUCCESS;
+    }
+
+    @Override
+    public String deleteBillboard(String queryText) {
+        String[] data = messageHelper.asArray(queryText);
+        if(2 != data.length) {
+            /**TODO: Update this error message */
+            return REQUEST_DATA_ERROR_CUSTOMER;
+        }
+        apiManager.delleteBillboard(data[1]);
+        /**TODO: Update this success message */
+        return START_TRANSACTION_SUCCESS;
     }
 
     @Override

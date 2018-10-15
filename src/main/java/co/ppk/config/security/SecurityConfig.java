@@ -37,6 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http.headers().defaultsDisabled().cacheControl().and().httpStrictTransportSecurity().and().contentTypeOptions()
 				.and().xssProtection().and().frameOptions();
+
+		http.csrf().disable();
 		
 		http.authorizeRequests().mvcMatchers("/v1/message").permitAll().and().csrf().disable();
 		http.exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)).and().sessionManagement();
