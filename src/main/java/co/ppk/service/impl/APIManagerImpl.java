@@ -1,9 +1,6 @@
 package co.ppk.service.impl;
 
-import co.ppk.dto.APIResponse;
-import co.ppk.dto.BillboardDto;
-import co.ppk.dto.CustomerDto;
-import co.ppk.dto.TransactionTDto;
+import co.ppk.dto.*;
 import co.ppk.model.PaymentInfoRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -107,10 +104,12 @@ public class APIManagerImpl implements APIManager {
     }
 
     @Override
-    public APIResponse getConfirmedTransactionByFacePlate(String facePlate) {
-        return new APIResponse(200, new HashMap<String,Object>() {{
-            put("success", true);
-        }});
+    public TransactionDto getConfirmedTransactionByFacePlate(String facePlate) {
+        ResponseEntity<TransactionDto> response = client.processRequestGet(
+        pm.getProperty("TRANSACTION_API_BASE_PATH") + "/confirmed/" + facePlate, TransactionDto.class);
+        LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+        return response.getBody();
+
     }
 
     @Override
@@ -162,10 +161,11 @@ public class APIManagerImpl implements APIManager {
     }
 
     @Override
-    public APIResponse getRate() {
-        return new APIResponse(200, new HashMap<String,Object>() {{
-            put("success", true);
-        }});
+    public RateDto getRate() {
+        ResponseEntity<RateDto> response = client.processRequestGet(
+                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/rate", RateDto.class);
+        LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+        return response.getBody();
     }
 
     @Override
