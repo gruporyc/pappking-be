@@ -227,6 +227,17 @@ public final class RestTemplateHelper {
 		return resp;
 	}
 
+	public <T> ResponseEntity<T> processRequestBase(String url, Class<T> response, HttpMethod method) {
+
+		HttpHeaders headers = getBasicHeaders();
+
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url);
+
+		HttpEntity<?> req = new HttpEntity<>(null, headers);
+
+		return rt.exchange(builder.toUriString(), method, req, response);
+	}
+
 	public <T> ResponseEntity<T> processRequestBase(String url, Map<String, String> obj, Class<T> response,
 			HttpMethod method, Map<String, String> queryParams) {
 
@@ -333,5 +344,9 @@ public final class RestTemplateHelper {
 
 	public <T> ResponseEntity<T> processRequestPatchExtended(String url, Object body, Class<T> response) {
 		return processRequestBase(url, body, response, HttpMethod.PATCH);
+	}
+
+	public <T> ResponseEntity<T> processRequestDelete(String url, Class<T> response) {
+		return processRequestBase(url, response, HttpMethod.DELETE);
 	}
 }

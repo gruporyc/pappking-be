@@ -35,4 +35,7 @@ public interface APIManager {
     APIResponse putEndTransactionById(String id);
 
 
+    void updateBillboard(BillboardDto billboard);
+
+    void delleteBillboard(String billboardId);
 }
