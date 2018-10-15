@@ -188,7 +188,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("address", billboard.getAddress());
 
         ResponseEntity<Object> response = client.processRequestPut(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboard",requestBody, Object.class);
+                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboards",requestBody, Object.class);
 
     }
 
@@ -196,7 +196,7 @@ public class APIManagerImpl implements APIManager {
     public void delleteBillboard(String billboardId) {
 
         ResponseEntity<Object> response = client.processRequestDelete(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboard/" + billboardId, Object.class);
+                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboards/" + billboardId, Object.class);
 
     }
 }
