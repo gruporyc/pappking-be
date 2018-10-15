@@ -179,5 +179,24 @@ public class APIManagerImpl implements APIManager {
 
     }
 
+    @Override
+    public void updateBillboard(BillboardDto billboard) {
 
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("id", billboard.getId());
+        requestBody.put("code", billboard.getCode());
+        requestBody.put("address", billboard.getAddress());
+
+        ResponseEntity<Object> response = client.processRequestPut(
+                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboard",requestBody, Object.class);
+
+    }
+
+    @Override
+    public void delleteBillboard(String billboardId) {
+
+        ResponseEntity<Object> response = client.processRequestDelete(
+                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboard/" + billboardId, Object.class);
+
+    }
 }

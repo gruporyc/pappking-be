@@ -18,6 +18,10 @@ public interface BusinessManager {
 
     String endAuthorization(String queryText);
 
+    String updateBillboard(String billboard);
+
+    String deleteBillboard(String billboardId);
+
     String startAuthorization(String queryText);
 
     String authorizedConsultation(String queryText);
