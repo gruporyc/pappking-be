@@ -23,4 +23,5 @@ public interface Messages {
     String REQUEST_DATA_ERROR_START_CONFIRMATION = "Error en datos, ejemplo de comando:  ENTRADA placa";
     String START_CONFIRMATION_SUCCESS = "Se confirmo la transaccion de manera exitosa para el vehiculo placa: ";
     String START_CONFIRMATION_ERROR = "Se genera un error en la confirmacion por favor intenta de nuevo ";
+    String RATE_NOT_FOUND = "No se encuentra valor de tarifa, consultar con el operador Pappking";
 }

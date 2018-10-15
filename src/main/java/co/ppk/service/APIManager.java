@@ -18,7 +18,7 @@ public interface APIManager {
 
     TransactionTDto getInitTransactionByFacePlate (String faceplate);
 
-    APIResponse getConfirmedTransactionByFacePlate (String faceplate);
+    TransactionDto getConfirmedTransactionByFacePlate (String faceplate);
 
     APIResponse setConfirmedInitTransactionByFacePlate (TransactionTDto transaction);
 
@@ -30,7 +30,7 @@ public interface APIManager {
 
     String setTemporalTransaction (TransactionTDto transaction);
 
-    APIResponse getRate();
+    RateDto getRate();
 
     APIResponse putEndTransactionById(String id);
 
