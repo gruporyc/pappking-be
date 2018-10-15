@@ -9,6 +9,7 @@
  ******************************************************************/
 
 package co.ppk.web.controller;
+import java.util.HashMap;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -74,15 +75,12 @@ public class ProxyEndpointController extends BaseRestController {
 
 	@RequestMapping(value = "/message", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> processMessage(@RequestHeader(required = false, value = CURRENT_USER_LOCALE) String language,
-												 @RequestBody Message message, BindingResult result, HttpServletRequest request,
-												 HttpServletResponse response) {
+												 @RequestBody Message message, BindingResult result, HttpServletRequest request) {
        // messageValidator.validate(message, result);
 		System.out.println("------------------------------------------------------------------- ");
 
 		String serviceResponse = "";
-
-		ResponseEntity responseEntity;
-
+        HashMap<String, String> response = new HashMap<>();
 		try {
 			switch(message.getQueryResult().getIntent().getDisplayName()) {
 
@@ -158,9 +156,11 @@ public class ProxyEndpointController extends BaseRestController {
 					serviceResponse = businessManager.deleteBillboard(message.getQueryResult().getQueryText());
 					break;
 			}
-            return ResponseEntity.ok(serviceResponse);
+			response.put("message", serviceResponse);
+            return ResponseEntity.ok(response);
 		}catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            response.put("cause", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 	}
 }

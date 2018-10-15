@@ -294,7 +294,12 @@ public class BusiinessManagerImpl implements BusinessManager{
             /**TODO: Update this error message */
             return REQUEST_DATA_ERROR_CUSTOMER;
         }
+
         BillboardDto currentBillboard = apiManager.getBillboardByCode(data[1]);
+
+        if(Objects.isNull(currentBillboard.getId()) || currentBillboard.getId().isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
 
         BillboardDto newBillboard = new BillboardDto();
 
@@ -315,7 +320,12 @@ public class BusiinessManagerImpl implements BusinessManager{
             /**TODO: Update this error message */
             return REQUEST_DATA_ERROR_CUSTOMER;
         }
-        apiManager.delleteBillboard(data[1]);
+        BillboardDto currentBillboard = apiManager.getBillboardByCode(data[1]);
+
+        if(Objects.isNull(currentBillboard.getId()) || currentBillboard.getId().isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+        apiManager.delleteBillboard(currentBillboard.getId());
         /**TODO: Update this success message */
         return START_TRANSACTION_SUCCESS;
     }
