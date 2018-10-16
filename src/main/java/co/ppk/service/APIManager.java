@@ -20,7 +20,7 @@ public interface APIManager {
 
     TransactionDto getConfirmedTransactionByFacePlate (String faceplate);
 
-    APIResponse setConfirmedInitTransactionByFacePlate (TransactionTDto transaction);
+    String setConfirmedInitTransactionByFacePlate (TransactionDto transaction);
 
     APIResponse getConfirmedEndTransactionByFacePlate(String faceplate);
 
@@ -36,6 +36,6 @@ public interface APIManager {
 
 
     void updateBillboard(BillboardDto billboard);
-
+    void deleteTemporalTransaction (String id);
     void delleteBillboard(String billboardId);
 }
