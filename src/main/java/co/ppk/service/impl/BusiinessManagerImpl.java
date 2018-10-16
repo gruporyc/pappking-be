@@ -5,6 +5,7 @@ import co.ppk.service.APIManager;
 import co.ppk.service.BusinessManager;
 import co.ppk.utilities.HourGeneration;
 import co.ppk.utilities.MessageHelper;
+import co.ppk.utilities.TimeCalculation;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -105,7 +106,7 @@ public class BusiinessManagerImpl implements BusinessManager{
 
         String[] data = messageHelper.asArray(queryText);
         String response = "";
-        if(data.length==4) {
+        if(4==data.length) {
             CustomerDto customer = new CustomerDto();
             customer.setIdentification(data[1]);
             customer.setName(data[2]);
@@ -170,68 +171,48 @@ public class BusiinessManagerImpl implements BusinessManager{
         /** TODO Implement business logic for end service */
         String[] data = messageHelper.asArray(queryText);
         String response = "";
-//        if(data.length==2) {
-//            try {
-//                //se busca la tarifa
-//                APIResponse transactionResponse = apiManager.getRate();
-//                if (transactionResponse.getHttpCode() == 200) {
-//                    Gson gson = new Gson();
-//                    String activeRate = String.valueOf(new JSONObject(gson.toJson(transactionResponse.getBody())).get("rate"));
-//                    String value = String.valueOf(new JSONObject(activeRate).get("value"));
-//                    //se consulta el servicio de transacciones para validar que la transaccion esta abierta y confirmada
-//                    //Abierta = tabla temporal status I,  confirmada = tabla final cerrada = N
-//                     transactionResponse = apiManager.getConfirmedTransactionByFacePlate(data[1]);
-//                    if (transactionResponse.getHttpCode() == 200) {
-//                        //este servicio debe devolver el calculo del tiempo y el monto a cobrar segun la tarifa vigente
-//                         gson = new Gson();
-//                        String transaction = String.valueOf(new JSONObject(gson.toJson(transactionResponse.getBody())).get("transaction"));
-//                        String id = String.valueOf(new JSONObject(transaction).get("id"));
-//                        String phone = String.valueOf(new JSONObject(transaction).get("phone"));
-//                        String license_plate = String.valueOf(new JSONObject(transaction).get("license_plate"));
-//                        String billboards_code = String.valueOf(new JSONObject(transaction).get("billboards_code"));
-//                        String start_date = String.valueOf(new JSONObject(transaction).get("start_date"));
-//                        String start_time = String.valueOf(new JSONObject(transaction).get("start_time"));
-//                        TransactionTDto endTransaction = new TransactionTDto();
-//                        endTransaction.setPhone(phone);
-//                        endTransaction.setLicense_plate(license_plate);
-//                        endTransaction.setBillboards_code(billboards_code);
-//                        HourGeneration datetime = new HourGeneration();
-//                        TimeCalculation timeCalculation = new TimeCalculation();
-//                        String endDate = datetime.getDateFormat();
-//                        String endTime = datetime.getHourFormat();
-//                        endTransaction.setDate(endDate);
-//                        endTransaction.setTime(endTime);
-//                        String dat[]={start_date+" "+start_time,endDate+" "+endTime};
-//                        Long minutes = timeCalculation.TimeCalculation(dat);
-//                        endTransaction.setTime(Long.toString(minutes));
-//                        Long price = Long.parseLong(value) * minutes;
-//                        endTransaction.setPrice(Long.toString(price));
-//                        endTransaction.setAction("F");
-//                        //INSERTO LA TRANSACCION TEMPORAL DE FINALIZACION
-//                        transactionResponse = apiManager.setTemporalTransaction(endTransaction);
-//                        if (transactionResponse.getHttpCode() == 200) {
-//                            //REALIZAR EL UPDATE DEL STATUS DE LA TRANSACCION A CERRADA = P
-//                            transactionResponse = apiManager.putEndTransactionById(id);
-//                            response = TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price;
-//                        }else{
-//                            response = TRANSACTION_COMPLETED_ERROR;
-//                        }
-//                    }else{
-//                        //se debe enviar un mensaje de que la transaccion no existe, se debe verificar que las respuesta del servicio sea un NotFound
-//                        response=CONFIRMED_TRANSACTION_NOT_EXIST + data[1];
-//                    }
-//                }else response = "MENSAJE PARA DECIR QUE NO HAY TARIFA";
-//            }catch (HttpClientErrorException e) {
-//                response = UNEXPECTED_ERROR;
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//
-//        }else{
-//            response = REQUEST_DATA_ERROR_END_SERVICE;
-//
-//        }
-        return response;
+       if(2!=data.length) {
+           return REQUEST_DATA_ERROR_END_SERVICE;
+       }
+      try {
+            RateDto rate = apiManager.getRate();
+            if (Objects.isNull(rate.getValue()) || rate.getId().isEmpty() ) {
+                return RATE_NOT_FOUND;
+            }
+            String value = rate.getValue();
+            TransactionDto transaction = apiManager.getConfirmedTransactionByFacePlate(data[1]);
+            if (Objects.isNull(transaction.getId()) || transaction.getId().isEmpty() ) {
+                return CONFIRMED_TRANSACTION_NOT_EXIST;
+          }
+            String id = transaction.getId();
+            String phone = transaction.getPhone();
+            String license_plate = transaction.getLicense_plate();
+            String billboards_code = transaction.getBillboards_code();
+            String start_date = transaction.getStart_date();
+            String start_time = transaction.getStart_time();
+            TransactionTDto endTransaction = new TransactionTDto();
+            endTransaction.setPhone(phone);
+            endTransaction.setLicense_plate(license_plate);
+            endTransaction.setBillboards_code(billboards_code);
+            HourGeneration datetime = new HourGeneration();
+            TimeCalculation timeCalculation = new TimeCalculation();
+            String endDate = datetime.getDateFormat();
+            String endTime = datetime.getHourFormat();
+            endTransaction.setDate(endDate);
+            endTransaction.setTime(endTime);
+            String dat[]={start_date+" "+start_time,endDate+" "+endTime};
+            Long minutes = timeCalculation.TimeCalculation(dat);
+            endTransaction.setTime(Long.toString(minutes));
+            Long price = Long.parseLong(value) * minutes;
+            endTransaction.setPrice(Long.toString(price));
+            endTransaction.setAction("F");
+           //INSERTO LA TRANSACCION TEMPORAL DE FINALIZACION
+            apiManager.setTemporalTransaction(endTransaction);
+            return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price;
+        } catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 
