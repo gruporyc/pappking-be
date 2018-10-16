@@ -221,32 +221,33 @@ public class BusiinessManagerImpl implements BusinessManager{
         /** TODO Implement business logic for Start Confirmation */
         String[] data = messageHelper.asArray(queryText);
         String response = "";
-//        if(data.length==2) {
-//            //Se verifica q la transaccion  existe (debe estar abierta (tabla temporal con ACTION=I))
-//            APIResponse transactionResponse = apiManager.getInitTransactionByFacePlate(data[1]);
-//            if (transactionResponse.getHttpCode() == 200) {
-//                //confirmar la transaccion de inicio, insertar en tabla definitiva y elimminar de la temporal
-//
-//                TransactionTDto transaction = new TransactionTDto();
-//                transactionResponse = apiManager.setConfirmedInitTransactionByFacePlate(transaction);
-//                if (transactionResponse.getHttpCode() == 200) {
-//                    //aqui se debe eliminar la transaccion temporal
-//                    //se realizo la confirmacion de forma exitosa
-//                    response = START_CONFIRMATION_SUCCESS+data[1];
-//                }else{
-//                    //se genero un error al momento de confirmar la transaccion
-//                    response = START_CONFIRMATION_ERROR;
-//                }
-//
-//            }else{
-//                //confirmar transaccion
-//                response = CONFIRMED_TRANSACTION_NOT_EXIST;
-//            }
-//
-//        }else{
-//            response = REQUEST_DATA_ERROR_START_CONFIRMATION;
-//
-//        }
+        if(2!=data.length) {
+            return REQUEST_DATA_ERROR_START_CONFIRMATION;
+        }
+        try {
+            TransactionTDto temporalTransaction = apiManager.getInitTransactionByFacePlate(data[1]);
+            if (Objects.isNull(temporalTransaction.getId()) || temporalTransaction.getId().isEmpty() ) {
+                return CONFIRMED_TRANSACTION_NOT_EXIST;
+            }
+            TransactionDto transaction = new TransactionDto();
+            transaction.setPhone(temporalTransaction.getPhone());
+            transaction.setLicense_plate(temporalTransaction.getLicense_plate());
+            transaction.setBillboards_code(temporalTransaction.getBillboards_code());
+            transaction.setStart_date(temporalTransaction.getDate());
+            transaction.setStart_time(temporalTransaction.getHour());
+            transaction.setEnd_date("");
+            transaction.setEnd_time("");
+            transaction.setTime(temporalTransaction.getTime());
+            transaction.setPrice(temporalTransaction.getPrice());
+            transaction.setClosed("N");
+            apiManager.setConfirmedInitTransactionByFacePlate(transaction);
+            apiManager.deleteTemporalTransaction(temporalTransaction.getId());
+            response = START_CONFIRMATION_SUCCESS+data[1];
+
+        } catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         return response;
     }
 

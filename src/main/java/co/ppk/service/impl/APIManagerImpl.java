@@ -138,7 +138,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("hour", transaction.getHour());
         requestBody.put("time", transaction.getTime());
         requestBody.put("price", transaction.getPrice());
-        requestBody.put("action", "I");
+        requestBody.put("action", transaction.getAction());
 
         ResponseEntity<String> response = client.processRequestPost(pm.getProperty("TRANSACTION_API_BASE_PATH") + "/temporal-transaction/create",
                 requestBody, String.class);
@@ -147,10 +147,23 @@ public class APIManagerImpl implements APIManager {
     }
 
     @Override
-    public APIResponse setConfirmedInitTransactionByFacePlate(TransactionTDto transaction) {
-        return new APIResponse(200, new HashMap<String,Object>() {{
-            put("success", true);
-        }});
+    public String setConfirmedInitTransactionByFacePlate(TransactionDto transaction) {
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("phone", transaction.getPhone());
+        requestBody.put("license_plate", transaction.getLicense_plate());
+        requestBody.put("billboards_code", transaction.getBillboards_code());
+        requestBody.put("start_date", transaction.getStart_date());
+        requestBody.put("start_time", transaction.getStart_time());
+        requestBody.put("end_date", transaction.getEnd_date());
+        requestBody.put("end_time", transaction.getEnd_time());
+        requestBody.put("time", transaction.getTime());
+        requestBody.put("price", transaction.getPrice());
+        requestBody.put("closed", transaction.getClosed());
+
+        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("TRANSACTION_API_BASE_PATH") + "/create",
+                requestBody, String.class);
+
+        return response.getBody();
     }
 
     @Override
@@ -197,6 +210,14 @@ public class APIManagerImpl implements APIManager {
 
         ResponseEntity<Object> response = client.processRequestDelete(
                 pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboard/" + billboardId, Object.class);
+
+    }
+
+    @Override
+    public void deleteTemporalTransaction(String temporalTransactionId) {
+
+        ResponseEntity<Object> response = client.processRequestDelete(
+                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/temporal-transaction/delete/" + temporalTransactionId, Object.class);
 
     }
 }
