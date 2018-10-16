@@ -257,6 +257,8 @@ public class BusiinessManagerImpl implements BusinessManager{
         String[] data = messageHelper.asArray(queryText);
         String response = "";
         if(data.length==2) {
+
+            //DEBO DESARROLLAR ESTE MAÑANA
             APIResponse transactionResponse = apiManager.getConfirmedEndTransactionByFacePlate(data[1]);
             if (transactionResponse.getHttpCode() == 200) {
 
