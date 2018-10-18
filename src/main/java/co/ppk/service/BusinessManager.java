@@ -22,7 +22,7 @@ public interface BusinessManager {
 
     String deleteBillboard(String billboardId);
 
-    String startAuthorization(String queryText);
+    String startAuthorization(String queryText, String session);
 
     String authorizedConsultation(String queryText);
 
