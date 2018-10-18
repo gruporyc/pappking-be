@@ -104,6 +104,16 @@ public class APIManagerImpl implements APIManager {
     }
 
     @Override
+    public TransactionTDto getEndTransactionByFacePlate(String facePlate) {
+
+        ResponseEntity<TransactionTDto> response = client.processRequestGet(
+                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/end/" + facePlate, TransactionTDto.class);
+        LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+
+        return response.getBody();
+    }
+
+    @Override
     public TransactionDto getConfirmedTransactionByFacePlate(String facePlate) {
         ResponseEntity<TransactionDto> response = client.processRequestGet(
         pm.getProperty("TRANSACTION_API_BASE_PATH") + "/confirmed/" + facePlate, TransactionDto.class);
@@ -123,7 +133,25 @@ public class APIManagerImpl implements APIManager {
     public BillboardDto getBillboardByCode(String code) {
 
         ResponseEntity<BillboardDto> response = client.processRequestGet(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboards/find/" + code, BillboardDto.class);
+            pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboards/find/" + code, BillboardDto.class);
+    //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+        return response.getBody();
+}
+
+    @Override
+    public BillboardDto getBillboardById(String id) {
+
+        ResponseEntity<BillboardDto> response = client.processRequestGet(
+                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboards/find/id/" + id, BillboardDto.class);
+        //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+        return response.getBody();
+    }
+
+    @Override
+    public OperatorDto getOperatorById(String id) {
+
+        ResponseEntity<OperatorDto> response = client.processRequestGet(
+                pm.getProperty("OPERATOR_API_BASE_PATH") + "/" + id, OperatorDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
     }
@@ -167,6 +195,26 @@ public class APIManagerImpl implements APIManager {
     }
 
     @Override
+    public String setAutorizationInitTransactionByFacePlate(TransactionDto transaction) {
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("phone", transaction.getPhone());
+        requestBody.put("license_plate", transaction.getLicense_plate());
+        requestBody.put("billboards_code", transaction.getBillboards_code());
+        requestBody.put("start_date", transaction.getStart_date());
+        requestBody.put("start_time", transaction.getStart_time());
+        requestBody.put("end_date", transaction.getEnd_date());
+        requestBody.put("end_time", transaction.getEnd_time());
+        requestBody.put("time", transaction.getTime());
+        requestBody.put("price", transaction.getPrice());
+        requestBody.put("closed", transaction.getClosed());
+
+        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("TRANSACTION_API_BASE_PATH") + "autorization/create",
+                requestBody, String.class);
+
+        return response.getBody();
+    }
+
+    @Override
     public APIResponse getConfirmedEndTransactionByFacePlate(String facePlate) {
         return new APIResponse(200, new HashMap<String,Object>() {{
             put("success", true);
@@ -189,6 +237,36 @@ public class APIManagerImpl implements APIManager {
                 pm.getProperty("TRANSACTION_API_BASE_PATH") + "/status/update/" + id, Object.class);
 
         return new APIResponse(response.getStatusCode().value(), response.getBody());
+
+    }
+
+    @Override
+    public WorkCodeDto getWorkCodeByAuthorizationCode(String workCode) {
+
+        ResponseEntity<WorkCodeDto> response = client.processRequestGet(
+                pm.getProperty("OPERATOR_API_BASE_PATH") + "/work-codes/" + workCode, WorkCodeDto.class);
+        //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+        return response.getBody();
+
+	}
+
+    @Override
+    public void updateTransaction(TransactionDto transaction) {
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("id", transaction.getId());
+        requestBody.put("phone", transaction.getPhone());
+        requestBody.put("license_plate", transaction.getLicense_plate());
+        requestBody.put("billboards_code", transaction.getBillboards_code());
+        requestBody.put("start_date", transaction.getStart_date());
+        requestBody.put("start_time", transaction.getStart_time());
+        requestBody.put("end_date", transaction.getEnd_date());
+        requestBody.put("end_time", transaction.getEnd_time());
+        requestBody.put("time", transaction.getTime());
+        requestBody.put("price", transaction.getPrice());
+        requestBody.put("closed", transaction.getClosed());
+        ResponseEntity<Object> response = client.processRequestPut(
+                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/update",requestBody, Object.class);
 
     }
 

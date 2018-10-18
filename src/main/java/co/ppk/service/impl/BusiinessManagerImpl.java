@@ -132,7 +132,7 @@ public class BusiinessManagerImpl implements BusinessManager{
 
     @Override
     public String initService(String queryText, String session) {
-        /** TODO Implement business logic for init service */
+        //COMANDO = INICIO VALLA PLACA
         String[] data = messageHelper.asArray(queryText);
         String response = "";
         if(3 != data.length) {
@@ -168,7 +168,7 @@ public class BusiinessManagerImpl implements BusinessManager{
 
     @Override
     public String endService(String queryText) {
-        /** TODO Implement business logic for end service */
+        //COMANDO = FIN PLACA
         String[] data = messageHelper.asArray(queryText);
         String response = "";
        if(2!=data.length) {
@@ -180,34 +180,33 @@ public class BusiinessManagerImpl implements BusinessManager{
                 return RATE_NOT_FOUND;
             }
             String value = rate.getValue();
-            TransactionDto transaction = apiManager.getConfirmedTransactionByFacePlate(data[1]);
-            if (Objects.isNull(transaction.getId()) || transaction.getId().isEmpty() ) {
-                return CONFIRMED_TRANSACTION_NOT_EXIST;
+            TransactionDto currentTransaction = apiManager.getConfirmedTransactionByFacePlate(data[1]);
+            if (Objects.isNull(currentTransaction.getId()) || currentTransaction.getId().isEmpty() ) {
+                return CONFIRMED_TRANSACTION_NOT_EXIST + data[1];
           }
-            String id = transaction.getId();
-            String phone = transaction.getPhone();
-            String license_plate = transaction.getLicense_plate();
-            String billboards_code = transaction.getBillboards_code();
-            String start_date = transaction.getStart_date();
-            String start_time = transaction.getStart_time();
             TransactionTDto endTransaction = new TransactionTDto();
-            endTransaction.setPhone(phone);
-            endTransaction.setLicense_plate(license_plate);
-            endTransaction.setBillboards_code(billboards_code);
+            endTransaction.setPhone(currentTransaction.getPhone());
+            endTransaction.setLicense_plate(currentTransaction.getLicense_plate());
+            endTransaction.setBillboards_code(currentTransaction.getBillboards_code());
             HourGeneration datetime = new HourGeneration();
             TimeCalculation timeCalculation = new TimeCalculation();
             String endDate = datetime.getDateFormat();
             String endTime = datetime.getHourFormat();
             endTransaction.setDate(endDate);
-            endTransaction.setTime(endTime);
-            String dat[]={start_date+" "+start_time,endDate+" "+endTime};
+            endTransaction.setHour(endTime);
+            String dat[]={currentTransaction.getStart_date()+" "+currentTransaction.getStart_time(),endDate+" "+endTime};
             Long minutes = timeCalculation.TimeCalculation(dat);
             endTransaction.setTime(Long.toString(minutes));
             Long price = Long.parseLong(value) * minutes;
             endTransaction.setPrice(Long.toString(price));
             endTransaction.setAction("F");
-           //INSERTO LA TRANSACCION TEMPORAL DE FINALIZACION
-            apiManager.setTemporalTransaction(endTransaction);
+            String reponse = "S";
+            response = apiManager.setTemporalTransaction(endTransaction);
+            if(!response.equals("S")){
+                return response;
+            }
+            currentTransaction.setClosed("P");
+            apiManager.updateTransaction(currentTransaction);
             return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price;
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -218,7 +217,7 @@ public class BusiinessManagerImpl implements BusinessManager{
 
     @Override
     public String startConfirmation(String queryText) {
-        /** TODO Implement business logic for Start Confirmation */
+        //ENTRADA PLACA
         String[] data = messageHelper.asArray(queryText);
         String response = "";
         if(2!=data.length) {
@@ -227,7 +226,7 @@ public class BusiinessManagerImpl implements BusinessManager{
         try {
             TransactionTDto temporalTransaction = apiManager.getInitTransactionByFacePlate(data[1]);
             if (Objects.isNull(temporalTransaction.getId()) || temporalTransaction.getId().isEmpty() ) {
-                return CONFIRMED_TRANSACTION_NOT_EXIST;
+                return CONFIRMED_TRANSACTION_NOT_EXIST + data[1];
             }
             TransactionDto transaction = new TransactionDto();
             transaction.setPhone(temporalTransaction.getPhone());
@@ -242,6 +241,7 @@ public class BusiinessManagerImpl implements BusinessManager{
             transaction.setClosed("N");
             apiManager.setConfirmedInitTransactionByFacePlate(transaction);
             apiManager.deleteTemporalTransaction(temporalTransaction.getId());
+
             response = START_CONFIRMATION_SUCCESS+data[1];
 
         } catch (Exception e) {
@@ -253,29 +253,185 @@ public class BusiinessManagerImpl implements BusinessManager{
 
     @Override
     public String endConfirmation(String queryText) {
-        /** TODO Implement business logic for Start Confirmation */
+        // SALIDA PLACA
         String[] data = messageHelper.asArray(queryText);
         String response = "";
-        if(data.length==2) {
+        if(2!=data.length) {
+            return REQUEST_DATA_ERROR_END_CONFIRMATION;
+        }
+        try{
+            TransactionTDto temporalTransaction = apiManager.getEndTransactionByFacePlate(data[1]);
+            if (Objects.isNull(temporalTransaction.getId()) || temporalTransaction.getId().isEmpty() ) {
+                return END_TRANSACTION_NOT_EXIST;
+            }
+            TransactionDto currentTransaction = apiManager.getConfirmedTransactionByFacePlate(data[1]);
+            if (Objects.isNull(currentTransaction.getId()) || currentTransaction.getId().isEmpty() ) {
+                return INIT_CONFIRMED_TRANSACTION_NOT_EXIST;
+            }
+            TransactionDto transaction = new TransactionDto();
+            transaction.setId(currentTransaction.getId());
+            transaction.setPhone(currentTransaction.getPhone());
+            transaction.setLicense_plate(currentTransaction.getLicense_plate());
+            transaction.setBillboards_code(currentTransaction.getBillboards_code());
+            transaction.setStart_date(currentTransaction.getStart_date());
+            transaction.setStart_time(currentTransaction.getStart_time());
+            transaction.setEnd_date(temporalTransaction.getDate());
+            transaction.setEnd_time(temporalTransaction.getHour());
+            transaction.setTime(temporalTransaction.getTime());
+            transaction.setPrice(temporalTransaction.getPrice());
+            transaction.setClosed("S");
+            apiManager.updateTransaction(transaction);
+            apiManager.deleteTemporalTransaction(temporalTransaction.getId());
+            return END_CONFIRMATION_SUCCESS+data[1];
 
-            //DEBO DESARROLLAR ESTE MAÑANA
-            APIResponse transactionResponse = apiManager.getConfirmedEndTransactionByFacePlate(data[1]);
-            if (transactionResponse.getHttpCode() == 200) {
+        }catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
+    @Override
+    public String startAuthorization(String queryText, String session) {
+        String[] data = messageHelper.asArray(queryText);
+        //COMIENZO CEDULA COD_AUTORIZACION VALLA PLACA
+        if(5 != data.length) {
+            return REQUEST_DATA_ERROR_START_AUTORIZATION;
+        }
+        try {
+            WorkCodeDto workCode = apiManager.getWorkCodeByAuthorizationCode(data[2]);
+            if (Objects.isNull(workCode.getId()) || workCode.getId().isEmpty()) {
+                return WORK_CODE_NOT_EXIST;
+            }
+            BillboardDto billboardResponse = apiManager.getBillboardById(data[3]);
+            if (Objects.isNull(billboardResponse.getId()) || billboardResponse.getId().isEmpty()) {
+                return BILLBOARD_INVALID + data[3];
+            }
+            OperatorDto operator = apiManager.getOperatorById(workCode.getOperatorId());
+            if (Objects.isNull(operator.getId()) || operator.getId().isEmpty()) {
+                return OPERATOR_INVALID;
+            }
+            if(data[1]!=operator.getDocument_number()){
+                return OPERATOR_BILLBOARD_INVALID;
+            }
+            TransactionTDto temporalTransaction = apiManager.getInitTransactionByFacePlate(data[4]);
+            if (Objects.nonNull(temporalTransaction.getId()) && !temporalTransaction.getId().isEmpty() ) {
+                return START_SERVICE_EXISTS + data[4];
             }
 
-        }else{
-
+            TransactionDto transaction = new TransactionDto();
+            transaction.setPhone(session);
+            transaction.setLicense_plate(data[4]);
+            transaction.setBillboards_code(data[3]);
+            HourGeneration datetime = new HourGeneration();
+            transaction.setStart_date(datetime.getDateFormat());
+            transaction.setStart_time(datetime.getHourFormat());
+            transaction.setEnd_date("");
+            transaction.setEnd_time("");
+            transaction.setTime("0");
+            transaction.setPrice("0");
+            transaction.setClosed("N");
+            apiManager.setAutorizationInitTransactionByFacePlate(transaction);
+            return START_TRANSACTION_SUCCESS + data[4];
+        }catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return "Prueba Confirmacion de Fin";
     }
+
+    @Override
+    public String endAuthorization(String queryText) {
+        String[] data = messageHelper.asArray(queryText);
+        //FINAL CEDULA COD_AUTORIZACION PLACA
+        if(4 != data.length) {
+            return REQUEST_DATA_ERROR_END_AUTORIZATION;
+        }
+        try {
+            WorkCodeDto workCode = apiManager.getWorkCodeByAuthorizationCode(data[2]);
+            if (Objects.isNull(workCode.getId()) || workCode.getId().isEmpty()) {
+                return WORK_CODE_NOT_EXIST;
+            }
+            OperatorDto operator = apiManager.getOperatorById(workCode.getOperatorId());
+            if (Objects.isNull(operator.getId()) || operator.getId().isEmpty()) {
+                return OPERATOR_INVALID;
+            }
+            if(data[1]!=operator.getDocument_number()){
+                return OPERATOR_BILLBOARD_INVALID;
+            }
+            RateDto rate = apiManager.getRate();
+            if (Objects.isNull(rate.getValue()) || rate.getId().isEmpty() ) {
+                return RATE_NOT_FOUND;
+            }
+            String value = rate.getValue();
+            TransactionDto currentTransaction = apiManager.getConfirmedTransactionByFacePlate(data[3]);
+            if (Objects.isNull(currentTransaction.getId()) || currentTransaction.getId().isEmpty() ) {
+                return INIT_CONFIRMED_TRANSACTION_NOT_EXIST;
+            }
+            currentTransaction.setId(currentTransaction.getId());
+            currentTransaction.setPhone(currentTransaction.getPhone());
+            currentTransaction.setLicense_plate(currentTransaction.getLicense_plate());
+            currentTransaction.setBillboards_code(currentTransaction.getBillboards_code());
+            currentTransaction.setStart_date(currentTransaction.getStart_date());
+            currentTransaction.setStart_time(currentTransaction.getStart_time());
+            HourGeneration datetime = new HourGeneration();
+            TimeCalculation timeCalculation = new TimeCalculation();
+            String endDate = datetime.getDateFormat();
+            String endTime = datetime.getHourFormat();
+            currentTransaction.setEnd_date(endDate);
+            currentTransaction.setEnd_time(endTime);
+            String dat[]={currentTransaction.getStart_date()+" "+currentTransaction.getStart_time(),endDate+" "+endTime};
+            Long minutes = timeCalculation.TimeCalculation(dat);
+            currentTransaction.setTime(Long.toString(minutes));
+            Long price = Long.parseLong(value) * minutes;
+            currentTransaction.setPrice(Long.toString(price));
+            currentTransaction.setClosed("S");
+            apiManager.updateTransaction(currentTransaction);
+            return TRANSACTION_COMPLETED+data[3]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price;
+
+        }catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @Override
+    public String authorizedConsultation(String queryText) {
+        String[] data = messageHelper.asArray(queryText);
+        //CONSULTA CEDULA CODIGO PLACA
+        if(4 != data.length) {
+            return REQUEST_DATA_ERROR_AUTORIZED_CONSULTATION;
+        }
+        try {
+            WorkCodeDto workCode = apiManager.getWorkCodeByAuthorizationCode(data[2]);
+            if (Objects.isNull(workCode.getId()) || workCode.getId().isEmpty()) {
+                return WORK_CODE_NOT_EXIST;
+            }
+            OperatorDto operator = apiManager.getOperatorById(workCode.getOperatorId());
+            if (Objects.isNull(operator.getId()) || operator.getId().isEmpty()) {
+                return UNAUTHORIZED_CONSULTATION;
+            }
+            TransactionDto currentTransaction = apiManager.getConfirmedTransactionByFacePlate(data[3]);
+            if (Objects.nonNull(currentTransaction.getId()) && !currentTransaction.getId().isEmpty() ) {
+                return AUTHORIZED + currentTransaction.getBillboards_code();
+            }
+            TransactionTDto temporlTransaction = apiManager.getInitTransactionByFacePlate(data[2]);
+            if (Objects.nonNull(temporlTransaction.getId()) && !temporlTransaction.getId().isEmpty() ) {
+                return AUTHORIZED + currentTransaction.getBillboards_code();
+            }
+            return UNAUTHORIZED;
+
+
+        }catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+
 
     @Override
     public String updateBillboard(String queryText) {
 
         String[] data = messageHelper.asArray(queryText);
         if(4 != data.length) {
-            /**TODO: Update this error message */
+
             return REQUEST_DATA_ERROR_CUSTOMER;
         }
 
@@ -314,23 +470,9 @@ public class BusiinessManagerImpl implements BusinessManager{
         return START_TRANSACTION_SUCCESS;
     }
 
-    @Override
-    public String startAuthorization(String queryText) {
-        /** TODO Implement business logic for Start Confirmation */
-        return "Prueba Autorizacion  de inicio";
-    }
 
-    @Override
-    public String endAuthorization(String queryText) {
-        /** TODO Implement business logic for Start Confirmation */
-        return "Prueba Autorizacion  de fin";
-    }
 
-    @Override
-    public String authorizedConsultation(String queryText) {
-        /** TODO Implement business logic for Start Confirmation */
-        return "Prueba consultaAutorizada";
-    }
+
 
     @Override
     public String checkCustomerBalance(String queryText) {

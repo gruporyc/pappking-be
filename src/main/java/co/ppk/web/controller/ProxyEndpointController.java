@@ -113,7 +113,7 @@ public class ProxyEndpointController extends BaseRestController {
 					break;
 
 				case "autorizacionInicio" :
-					serviceResponse = businessManager.startAuthorization(message.getQueryResult().getQueryText());
+					serviceResponse = businessManager.startAuthorization(message.getQueryResult().getQueryText(),message.getSession());
 					break;
 
 				case "autorizacionFin" :
