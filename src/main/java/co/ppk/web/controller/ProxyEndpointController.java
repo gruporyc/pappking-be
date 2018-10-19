@@ -9,6 +9,7 @@
  ******************************************************************/
 
 package co.ppk.web.controller;
+import java.util.HashMap;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -73,83 +75,92 @@ public class ProxyEndpointController extends BaseRestController {
 
 	@RequestMapping(value = "/message", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> processMessage(@RequestHeader(required = false, value = CURRENT_USER_LOCALE) String language,
-												 @RequestBody Message message, BindingResult result, HttpServletRequest request,
-												 HttpServletResponse response) {
+												 @RequestBody Message message, BindingResult result, HttpServletRequest request) {
        // messageValidator.validate(message, result);
 		System.out.println("------------------------------------------------------------------- ");
 
 		String serviceResponse = "";
+        HashMap<String, String> response = new HashMap<>();
+		try {
+			switch(message.getQueryResult().getIntent().getDisplayName()) {
 
-		switch(message.getQueryResult().getIntent().getDisplayName()) {
+				case "registroClientes" :
+					serviceResponse = businessManager.customersRegister(message.getQueryResult().getQueryText());
+					break;
 
-			case "registroClientes" :
-				serviceResponse = businessManager.customersRegister(message.getQueryResult().getQueryText());
-				break;
+				case "registrarPlaca" :
+					serviceResponse = businessManager.registerFacePlate(message.getQueryResult().getQueryText());
+					break;
 
-			case "registrarPlaca" :
-				serviceResponse = businessManager.registerFacePlate(message.getQueryResult().getQueryText());
-				break;
+				case "registroEmpresas" :
+					serviceResponse = businessManager.companyRegister(message.getQueryResult().getQueryText());
+					break;
 
-			case "registroEmpresas" :
-				serviceResponse = businessManager.companyRegister(message.getQueryResult().getQueryText());
-				break;
+				case "inicioDeServicio" :
+					serviceResponse = businessManager.initService(message.getQueryResult().getQueryText(), message.getSession());
+					break;
 
-			case "inicioDeServicio" :
-				serviceResponse = businessManager.initService(message.getQueryResult().getQueryText(), message.getSession());
-				break;
+				case "FinServicio" :
+					serviceResponse = businessManager.endService(message.getQueryResult().getQueryText());
+					break;
 
-			case "FinServicio" :
-				serviceResponse = businessManager.endService(message.getQueryResult().getQueryText());
-				break;
+				case "ConfirmacionInicio" :
+					serviceResponse = businessManager.startConfirmation(message.getQueryResult().getQueryText());
+					break;
 
-			case "ConfirmacionInicio" :
-				serviceResponse = businessManager.startConfirmation(message.getQueryResult().getQueryText());
-				break;
+				case "ConfirmacionFin" :
+					serviceResponse = businessManager.endConfirmation(message.getQueryResult().getQueryText());
+					break;
 
-			case "ConfirmacionFin" :
-				serviceResponse = businessManager.endConfirmation(message.getQueryResult().getQueryText());
-				break;
+				case "autorizacionInicio" :
+					serviceResponse = businessManager.startAuthorization(message.getQueryResult().getQueryText(),message.getSession());
+					break;
 
-			case "autorizacionInicio" :
-				serviceResponse = businessManager.startAuthorization(message.getQueryResult().getQueryText());
-				break;
+				case "autorizacionFin" :
+					serviceResponse = businessManager.endAuthorization(message.getQueryResult().getQueryText());
+					break;
 
-			case "autorizacionFin" :
-				serviceResponse = businessManager.endAuthorization(message.getQueryResult().getQueryText());
-				break;
+				case "consultaAutorizada" :
+					serviceResponse = businessManager.authorizedConsultation(message.getQueryResult().getQueryText());
+					break;
 
-			case "consultaAutorizada" :
-				serviceResponse = businessManager.authorizedConsultation(message.getQueryResult().getQueryText());
-				break;
+				case "consultaSaldoCliente" :
+					serviceResponse = businessManager.checkCustomerBalance(message.getQueryResult().getQueryText());
+					break;
 
-			case "consultaSaldoCliente" :
-				serviceResponse = businessManager.checkCustomerBalance(message.getQueryResult().getQueryText());
-				break;
+				case "consultaSaldoEmpresa" :
+					serviceResponse = businessManager.checkCompanyBalance(message.getQueryResult().getQueryText());
+					break;
 
-			case "consultaSaldoEmpresa" :
-				serviceResponse = businessManager.checkCompanyBalance(message.getQueryResult().getQueryText());
-				break;
+				case "recargarSaldoCliente" :
+					serviceResponse = businessManager.reloadCustomerBalance(message.getQueryResult().getQueryText());
+					break;
 
-			case "recargarSaldoCliente" :
-				serviceResponse = businessManager.reloadCustomerBalance(message.getQueryResult().getQueryText());
-				break;
+				case "recargarSaldoEmpresa" :
+					serviceResponse = businessManager.reloadCompanyBalance(message.getQueryResult().getQueryText());
+					break;
 
-			case "recargarSaldoEmpresa" :
-				serviceResponse = businessManager.reloadCompanyBalance(message.getQueryResult().getQueryText());
-				break;
+				case "generaPromocion" :
+					serviceResponse = businessManager.generatePromotion(message.getQueryResult().getQueryText());
+					break;
 
-			case "generaPromocion" :
-				serviceResponse = businessManager.generatePromotion(message.getQueryResult().getQueryText());
-				break;
+				case "redimePromocion" :
+					serviceResponse = businessManager.redeemPromotion(message.getQueryResult().getQueryText());
+					break;
 
-			case "redimePromocion" :
-				serviceResponse = businessManager.redeemPromotion(message.getQueryResult().getQueryText());
-				break;
+				case "actualizarValla" :
+					serviceResponse = businessManager.updateBillboard(message.getQueryResult().getQueryText());
+					break;
 
-		}
-
-
-		return ResponseEntity.ok(createSuccessResponse(ResponseKeyName.message, serviceResponse));
-
+				case "eliminarValla" :
+					serviceResponse = businessManager.deleteBillboard(message.getQueryResult().getQueryText());
+					break;
+			}
+			response.put("message", serviceResponse);
+            return ResponseEntity.ok(response);
+		}catch (Exception e) {
+            response.put("cause", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
 	}
 }

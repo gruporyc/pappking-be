@@ -18,21 +18,37 @@ public interface APIManager {
 
     TransactionTDto getInitTransactionByFacePlate (String faceplate);
 
-    APIResponse getConfirmedTransactionByFacePlate (String faceplate);
+    TransactionTDto getEndTransactionByFacePlate (String faceplate);
 
-    APIResponse setConfirmedInitTransactionByFacePlate (TransactionTDto transaction);
+    TransactionDto getConfirmedTransactionByFacePlate (String faceplate);
+
+    String setConfirmedInitTransactionByFacePlate (TransactionDto transaction);
+
+    String setAutorizationInitTransactionByFacePlate (TransactionDto transaction);
+
 
     APIResponse getConfirmedEndTransactionByFacePlate(String faceplate);
 
     BillboardDto getBillboardByCode (String code);
+    BillboardDto getBillboardById (String id);
+
 
     APIResponse setEndTransaction (TransactionTDto endTransaction);
 
     String setTemporalTransaction (TransactionTDto transaction);
 
-    APIResponse getRate();
+    RateDto getRate();
 
     APIResponse putEndTransactionById(String id);
 
+    WorkCodeDto getWorkCodeByAuthorizationCode(String authorizationCode);
 
+    OperatorDto getOperatorById(String id);
+
+
+
+    void updateTransaction(TransactionDto transaction);
+    void updateBillboard(BillboardDto billboard);
+    void deleteTemporalTransaction (String id);
+    void delleteBillboard(String billboardId);
 }
