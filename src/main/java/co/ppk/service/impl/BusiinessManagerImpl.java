@@ -158,9 +158,10 @@ public class BusiinessManagerImpl implements BusinessManager{
             transaction.setPrice("0");
             transaction.setAction("I");
 
-            apiManager.setTemporalTransaction(transaction);
-
-            return START_TRANSACTION_SUCCESS + data[2];
+            String resp = apiManager.setTemporalTransaction(transaction);
+            if (resp.equals("S"))
+                return START_TRANSACTION_SUCCESS + data[2];
+            return resp;
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -301,7 +302,7 @@ public class BusiinessManagerImpl implements BusinessManager{
             if (Objects.isNull(workCode.getId()) || workCode.getId().isEmpty()) {
                 return WORK_CODE_NOT_EXIST;
             }
-            BillboardDto billboardResponse = apiManager.getBillboardById(data[3]);
+            BillboardDto billboardResponse = apiManager.getBillboardByCode(data[3]);
             if (Objects.isNull(billboardResponse.getId()) || billboardResponse.getId().isEmpty()) {
                 return BILLBOARD_INVALID + data[3];
             }
@@ -309,7 +310,7 @@ public class BusiinessManagerImpl implements BusinessManager{
             if (Objects.isNull(operator.getId()) || operator.getId().isEmpty()) {
                 return OPERATOR_INVALID;
             }
-            if(data[1]!=operator.getDocument_number()){
+            if(!data[1].equals(operator.getDocument_number()) ){
                 return OPERATOR_BILLBOARD_INVALID;
             }
             TransactionTDto temporalTransaction = apiManager.getInitTransactionByFacePlate(data[4]);
@@ -329,8 +330,10 @@ public class BusiinessManagerImpl implements BusinessManager{
             transaction.setTime("0");
             transaction.setPrice("0");
             transaction.setClosed("N");
-            apiManager.setAutorizationInitTransactionByFacePlate(transaction);
-            return START_TRANSACTION_SUCCESS + data[4];
+            String resp = apiManager.setAutorizationInitTransactionByFacePlate(transaction);
+            if (resp.equals("S"))
+                return START_TRANSACTION_SUCCESS + data[4];
+            return resp;
         }catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -352,7 +355,7 @@ public class BusiinessManagerImpl implements BusinessManager{
             if (Objects.isNull(operator.getId()) || operator.getId().isEmpty()) {
                 return OPERATOR_INVALID;
             }
-            if(data[1]!=operator.getDocument_number()){
+            if(!data[1].equals(operator.getDocument_number())){
                 return OPERATOR_BILLBOARD_INVALID;
             }
             RateDto rate = apiManager.getRate();

@@ -208,7 +208,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("price", transaction.getPrice());
         requestBody.put("closed", transaction.getClosed());
 
-        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("TRANSACTION_API_BASE_PATH") + "autorization/create",
+        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("TRANSACTION_API_BASE_PATH") + "/autorization/create",
                 requestBody, String.class);
 
         return response.getBody();
@@ -242,7 +242,6 @@ public class APIManagerImpl implements APIManager {
 
     @Override
     public WorkCodeDto getWorkCodeByAuthorizationCode(String workCode) {
-
         ResponseEntity<WorkCodeDto> response = client.processRequestGet(
                 pm.getProperty("OPERATOR_API_BASE_PATH") + "/work-codes/" + workCode, WorkCodeDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
