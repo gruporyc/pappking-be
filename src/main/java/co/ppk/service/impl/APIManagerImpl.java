@@ -97,7 +97,7 @@ public class APIManagerImpl implements APIManager {
     public TransactionTDto getInitTransactionByFacePlate(String facePlate) {
 
         ResponseEntity<TransactionTDto> response = client.processRequestGet(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/init/" + facePlate, TransactionTDto.class);
+                pm.getProperty("ppk.transaction.base.endpoint") + "/init/" + facePlate, TransactionTDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
 
         return response.getBody();
@@ -107,7 +107,7 @@ public class APIManagerImpl implements APIManager {
     public TransactionTDto getEndTransactionByFacePlate(String facePlate) {
 
         ResponseEntity<TransactionTDto> response = client.processRequestGet(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/end/" + facePlate, TransactionTDto.class);
+                pm.getProperty("ppk.transaction.base.endpoint") + "/end/" + facePlate, TransactionTDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
 
         return response.getBody();
@@ -116,7 +116,7 @@ public class APIManagerImpl implements APIManager {
     @Override
     public TransactionDto getConfirmedTransactionByFacePlate(String facePlate) {
         ResponseEntity<TransactionDto> response = client.processRequestGet(
-        pm.getProperty("TRANSACTION_API_BASE_PATH") + "/confirmed/" + facePlate, TransactionDto.class);
+        pm.getProperty("ppk.transaction.base.endpoint") + "/confirmed/" + facePlate, TransactionDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
 
@@ -133,7 +133,7 @@ public class APIManagerImpl implements APIManager {
     public BillboardDto getBillboardByCode(String code) {
 
         ResponseEntity<BillboardDto> response = client.processRequestGet(
-            pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboards/find/" + code, BillboardDto.class);
+            pm.getProperty("ppk.transaction.base.endpoint") + "/billboards/find/" + code, BillboardDto.class);
     //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
 }
@@ -142,7 +142,7 @@ public class APIManagerImpl implements APIManager {
     public BillboardDto getBillboardById(String id) {
 
         ResponseEntity<BillboardDto> response = client.processRequestGet(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboards/find/id/" + id, BillboardDto.class);
+                pm.getProperty("ppk.transaction.base.endpoint") + "/billboards/find/id/" + id, BillboardDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
     }
@@ -151,7 +151,7 @@ public class APIManagerImpl implements APIManager {
     public OperatorDto getOperatorById(String id) {
 
         ResponseEntity<OperatorDto> response = client.processRequestGet(
-                pm.getProperty("OPERATOR_API_BASE_PATH") + "/" + id, OperatorDto.class);
+                pm.getProperty("ppk.operator.base.endpoint") + "/" + id, OperatorDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
     }
@@ -168,7 +168,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("price", transaction.getPrice());
         requestBody.put("action", transaction.getAction());
 
-        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("TRANSACTION_API_BASE_PATH") + "/temporal-transaction/create",
+        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.transaction.base.endpoint") + "/temporal-transaction/create",
                 requestBody, String.class);
 
         return response.getBody();
@@ -188,7 +188,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("price", transaction.getPrice());
         requestBody.put("closed", transaction.getClosed());
 
-        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("TRANSACTION_API_BASE_PATH") + "/create",
+        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.transaction.base.endpoint") + "/create",
                 requestBody, String.class);
 
         return response.getBody();
@@ -208,7 +208,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("price", transaction.getPrice());
         requestBody.put("closed", transaction.getClosed());
 
-        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("TRANSACTION_API_BASE_PATH") + "/autorization/create",
+        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.transaction.base.endpoint") + "/autorization/create",
                 requestBody, String.class);
 
         return response.getBody();
@@ -224,7 +224,7 @@ public class APIManagerImpl implements APIManager {
     @Override
     public RateDto getRate() {
         ResponseEntity<RateDto> response = client.processRequestGet(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/rate", RateDto.class);
+                pm.getProperty("ppk.transaction.base.endpoint") + "/rate", RateDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
     }
@@ -232,9 +232,9 @@ public class APIManagerImpl implements APIManager {
     @Override
     public APIResponse putEndTransactionById(String id) {
 
-        String s = pm.getProperty("TRANSACTION_API_BASE_PATH") + "/status/update/" + id;
+        String s = pm.getProperty("ppk.transaction.base.endpoint") + "/status/update/" + id;
         ResponseEntity<Object> response = client.processRequestGet(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/status/update/" + id, Object.class);
+                pm.getProperty("ppk.transaction.base.endpoint") + "/status/update/" + id, Object.class);
 
         return new APIResponse(response.getStatusCode().value(), response.getBody());
 
@@ -243,7 +243,7 @@ public class APIManagerImpl implements APIManager {
     @Override
     public WorkCodeDto getWorkCodeByAuthorizationCode(String workCode) {
         ResponseEntity<WorkCodeDto> response = client.processRequestGet(
-                pm.getProperty("OPERATOR_API_BASE_PATH") + "/work-codes/" + workCode, WorkCodeDto.class);
+                pm.getProperty("ppk.operator.base.endpoint") + "/work-codes/" + workCode, WorkCodeDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
 
@@ -265,7 +265,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("price", transaction.getPrice());
         requestBody.put("closed", transaction.getClosed());
         ResponseEntity<Object> response = client.processRequestPut(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/update",requestBody, Object.class);
+                pm.getProperty("ppk.transaction.base.endpoint") + "/update",requestBody, Object.class);
 
     }
 
@@ -278,7 +278,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("address", billboard.getAddress());
 
         ResponseEntity<Object> response = client.processRequestPut(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboards",requestBody, Object.class);
+                pm.getProperty("ppk.transaction.base.endpoint") + "/billboards",requestBody, Object.class);
 
     }
 
@@ -286,7 +286,7 @@ public class APIManagerImpl implements APIManager {
     public void delleteBillboard(String billboardId) {
 
         ResponseEntity<Object> response = client.processRequestDelete(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/billboards/" + billboardId, Object.class);
+                pm.getProperty("ppk.transaction.base.endpoint") + "/billboards/" + billboardId, Object.class);
 
     }
 
@@ -294,7 +294,7 @@ public class APIManagerImpl implements APIManager {
     public void deleteTemporalTransaction(String temporalTransactionId) {
 
         ResponseEntity<Object> response = client.processRequestDelete(
-                pm.getProperty("TRANSACTION_API_BASE_PATH") + "/temporal-transaction/delete/" + temporalTransactionId, Object.class);
+                pm.getProperty("ppk.transaction.base.endpoint") + "/temporal-transaction/delete/" + temporalTransactionId, Object.class);
 
     }
 }

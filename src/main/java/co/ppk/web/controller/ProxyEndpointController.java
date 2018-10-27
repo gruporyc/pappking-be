@@ -156,10 +156,11 @@ public class ProxyEndpointController extends BaseRestController {
 					serviceResponse = businessManager.deleteBillboard(message.getQueryResult().getQueryText());
 					break;
 			}
-			response.put("message", serviceResponse);
+			response.put("fulfillmentText",serviceResponse);
+			System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%"+response);
             return ResponseEntity.ok(response);
 		}catch (Exception e) {
-            response.put("cause", e.getMessage());
+            response.put("fulfillmentText", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 	}

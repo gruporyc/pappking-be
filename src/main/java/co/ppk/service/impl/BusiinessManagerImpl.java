@@ -207,6 +207,7 @@ public class BusiinessManagerImpl implements BusinessManager{
                 return response;
             }
             currentTransaction.setClosed("P");
+            //LLAMADA A PAGOS y PROMOCIONES
             apiManager.updateTransaction(currentTransaction);
             return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price;
         } catch (Exception e) {
@@ -283,6 +284,7 @@ public class BusiinessManagerImpl implements BusinessManager{
             transaction.setClosed("S");
             apiManager.updateTransaction(transaction);
             apiManager.deleteTemporalTransaction(temporalTransaction.getId());
+            //LLAMADA A PAGOS Y TRANSACCIONES
             return END_CONFIRMATION_SUCCESS+data[1];
 
         }catch (Exception e) {
@@ -414,9 +416,9 @@ public class BusiinessManagerImpl implements BusinessManager{
             if (Objects.nonNull(currentTransaction.getId()) && !currentTransaction.getId().isEmpty() ) {
                 return AUTHORIZED + currentTransaction.getBillboards_code();
             }
-            TransactionTDto temporlTransaction = apiManager.getInitTransactionByFacePlate(data[2]);
+            TransactionTDto temporlTransaction = apiManager.getInitTransactionByFacePlate(data[3]);
             if (Objects.nonNull(temporlTransaction.getId()) && !temporlTransaction.getId().isEmpty() ) {
-                return AUTHORIZED + currentTransaction.getBillboards_code();
+                return AUTHORIZED + temporlTransaction.getBillboards_code();
             }
             return UNAUTHORIZED;
 
