@@ -20,7 +20,7 @@ import static co.ppk.utilities.Messages.*;
 
 
 @Component
-public class BusiinessManagerImpl implements BusinessManager{
+public class BusinessManagerImpl implements BusinessManager{
 
     @Autowired
     APIManager apiManager;
@@ -475,9 +475,20 @@ public class BusiinessManagerImpl implements BusinessManager{
         return START_TRANSACTION_SUCCESS;
     }
 
+    @Override
+    public BalanceDto getBalance(String customerId){
+        return apiManager.getCustomerBalance(customerId);
+    }
 
+    @Override
+    public PaymentServiceDto getPaymentService(String serviceId) {
+        return apiManager.getPaymentService(serviceId);
+    }
 
-
+    @Override
+    public boolean payService(PaymentRequestDto payment) {
+        return apiManager.payService(payment);
+    }
 
     @Override
     public String checkCustomerBalance(String queryText) {

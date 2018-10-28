@@ -8,6 +8,8 @@ public interface APIManager {
 
     APIResponse getPaymentInfo(PaymentInfoRequest paymentRequest);
 
+    BalanceDto getCustomerBalance(String customerId);
+
     APIResponse createCustomer(CustomerDto customer);
 
     APIResponse setFaceplate(String customerId, String facePlate);
@@ -51,4 +53,8 @@ public interface APIManager {
     void updateBillboard(BillboardDto billboard);
     void deleteTemporalTransaction (String id);
     void delleteBillboard(String billboardId);
+
+    PaymentServiceDto getPaymentService(String serviceId);
+
+    Boolean payService(PaymentRequestDto payment);
 }

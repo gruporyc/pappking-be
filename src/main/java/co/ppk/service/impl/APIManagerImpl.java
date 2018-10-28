@@ -31,14 +31,40 @@ public class APIManagerImpl implements APIManager {
 		Map<String, Object> requestBody = new HashMap<>();
 		requestBody.put("ammount", paymentRequest.getAmmount());
 		requestBody.put("concept", paymentRequest.getConcept());
-
-	//responseEntity<Object> response = client.processRequestPostObject(pm.getProperty("ppk.payments.getinfo.endpoint"),
-//		requestBody, Object.class);
-//		LOGGER.debug("Response Status=======================  " + response.getStatusCode());
-
-		//return new APIResponse(response.getStatusCode().value(), response.getBody());
 		return new APIResponse(200, null);
 	}
+
+    @Override
+    public BalanceDto getCustomerBalance(String customerId) {
+        ResponseEntity<BalanceDto> response = client.processRequestGet(
+                pm.getProperty("ppk.payments.balance.endpoint") + "/" + customerId, BalanceDto.class);
+		LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+
+        return response.getBody();
+    }
+
+    @Override
+    public PaymentServiceDto getPaymentService(String serviceId) {
+        ResponseEntity<PaymentServiceDto> response = client.processRequestGet(
+                pm.getProperty("ppk.payments.service.endpoint") + "/" + serviceId, PaymentServiceDto.class);
+        LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+
+        return response.getBody();
+    }
+
+    @Override
+    public Boolean payService(PaymentRequestDto payment) {
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("customer_id", payment.getCustomerId());
+        requestBody.put("service_id", payment.getServiceId());
+        requestBody.put("operator", String.valueOf(payment.getOperator()));
+        requestBody.put("amount", String.valueOf(payment.getAmount()));
+        ResponseEntity<Boolean> response = client.processRequestPost(
+                pm.getProperty("ppk.payments.pay.endpoint"), requestBody, Boolean.class);
+        LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+
+        return response.getBody();
+    }
 
 	@Override
 	public APIResponse createCustomer(CustomerDto customer) {

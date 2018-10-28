@@ -31,9 +31,8 @@ public class SpringBootController  {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		System.setProperty("PPK_HOME", "/ppk");
 		SpringApplication.run(SpringBootController.class, args);
 	}
-
 }
