@@ -10,7 +10,7 @@ public interface APIManager {
 
     BalanceDto getCustomerBalance(String customerId);
 
-    APIResponse createCustomer(CustomerDto customer);
+    String createCustomer(CustomerDto customer);
 
     APIResponse setFaceplate(String customerId, String facePlate);
 

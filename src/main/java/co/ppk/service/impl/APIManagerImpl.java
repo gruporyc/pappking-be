@@ -67,8 +67,8 @@ public class APIManagerImpl implements APIManager {
     }
 
 	@Override
-	public APIResponse createCustomer(CustomerDto customer) {
-		Map<String, Object> requestBody = new HashMap<>();
+	public String createCustomer(CustomerDto customer) {
+		Map<String, String> requestBody = new HashMap<>();
 		requestBody.put("identification", customer.getIdentification());
 		requestBody.put("name", customer.getName());
 		requestBody.put("lastName", customer.getLastName());
@@ -77,12 +77,12 @@ public class APIManagerImpl implements APIManager {
 		requestBody.put("phone", customer.getPhone());
 		requestBody.put("type", "C");
 		requestBody.put("status", "ACTIVE");
-		String property = pm.getProperty("ppk.customer.base.endpoint");
-		ResponseEntity<Object> response = client.processRequestPostObject(pm.getProperty("ppk.customer.base.endpoint"),
-		requestBody, Object.class);
+        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.customer.base.endpoint"),
+                requestBody, String.class);
 
-		return new APIResponse(response.getStatusCode().value(), response.getBody());
+        return response.getBody();
 	}
+
 
     @Override
     public APIResponse createCompany(CustomerDto customer) {
@@ -94,10 +94,8 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("phone", customer.getPhone());
         requestBody.put("type", "E");
         requestBody.put("status", "ACTIVE");
-        String property = pm.getProperty("ppk.customer.base.endpoint");
         ResponseEntity<Object> response = client.processRequestPostObject(pm.getProperty("ppk.customer.base.endpoint"),
                 requestBody, Object.class);
-
         return new APIResponse(response.getStatusCode().value(), response.getBody());
     }
 

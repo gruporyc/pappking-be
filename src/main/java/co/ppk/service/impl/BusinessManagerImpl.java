@@ -30,34 +30,27 @@ public class BusinessManagerImpl implements BusinessManager{
 
     @Override
     public String customersRegister(String queryText) {
-        /** TODO Implement business logic for create register */
-
+        //COMANDO: registro 9991191899 Pepito Perez pperez@gmail.com
         String[] data = messageHelper.asArray(queryText);
         String response = "";
-        if(data.length==5) {
+        if(5!=data.length) {
+            response = REQUEST_DATA_ERROR_CUSTOMER;
+        }
+        try{
             CustomerDto customer = new CustomerDto();
             customer.setIdentification(data[1]);
             customer.setName(data[2]);
             customer.setLastName(data[3]);
             customer.setEmail(data[4]);
-
-            try {
-                APIResponse apiResponse = apiManager.createCustomer(customer);
-                switch (apiResponse.getHttpCode()) {
-                    case 200:
-                        response = CUSTOMER_REGISTER_SUCCESS;
-                        break;
-                    case 304:
-                        response = CUSTOMER_ALREADY_EXISTS;
-                        break;
-                }
-            } catch (HttpClientErrorException e) {
-                response = UNEXPECTED_ERROR;
+            String customerResponse = apiManager.createCustomer(customer);
+            if (customerResponse.equals("S")) {
+                return CUSTOMER_ALREADY_EXISTS;
             }
-        }else{
-            response =  REQUEST_DATA_ERROR_CUSTOMER;
+            //ENVIAR A PAGOS EL customerResponse que es el ID
+            return CUSTOMER_REGISTER_SUCCESS;
+        } catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return response;
     }
 
     @Override
