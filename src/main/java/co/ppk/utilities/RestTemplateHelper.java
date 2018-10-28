@@ -29,6 +29,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -64,12 +65,15 @@ public final class RestTemplateHelper {
 	private static final Logger LOGGER = LogManager.getLogger(RestTemplateHelper.class.getCanonicalName());
 	/* Custom Headers */
 	public static final String LANGUAGE_HEADER = "language";
-	public static final String CLIENT_ID_HEADER = "x-client-id";
+	public static final String PAYMENT_CLIENT_TOKEN = "payment-client-key";
 	/* session objects names */
 	public static final String CURRENT_USER_LOCALE = "language";
 	public static final String DEFAULT_USER_LOCALE = "es_CO";
 	private RestTemplate rt;
 	private ObjectMapper om;
+
+    @Autowired
+    private PropertyManager pm;
 
 	/**
 	 * empty constructor that configure the component responsible of the objects
@@ -116,83 +120,10 @@ public final class RestTemplateHelper {
 
 	}
 
-	/**
-	 * function that allow execute rest request returning as response the domain
-	 * object
-	 * 
-	 * 
-	 * @param url
-	 *            - string con el path http expuesto por el servicio
-	 * @param parameters
-	 *            - <code>HashMap</code> with path or query parameters needed by the
-	 *            service
-	 * @param response
-	 *            Domain class that will be used as the response by the method
-	 * @return
-	 * @return T - Domain Object retorned
-	 *
-	 */
-	public <T> T processRequest(String url, Map<String, ?> parameters, Class<T> response) {
-		try {
-
-			String object = null;
-			if (parameters != null) {
-				object = rt.getForObject(url, String.class, parameters);
-			} else {
-				object = rt.getForObject(url, String.class);
-			}
-			return om.readValue(object, om.getTypeFactory().constructType(response));
-		} catch (HttpClientErrorException e) {
-			LOGGER.info("Client Error processing request");
-			throw e;
-		} catch (HttpServerErrorException e) {
-			LOGGER.info("Server Error processing request");
-			throw e;
-		} catch (RestClientException | IOException e) {
-			LOGGER.error("Error processing request", e);
-			return null;
-		}
-	}
-
-	public <T> List<T> processRequestAsList(String url, Map<String, ?> parameters, Class<T[]> response) {
-		List<T> resp = null;
-		try {
-
-			if (parameters != null) {
-				resp = Arrays.asList(rt.getForObject(url, response, parameters));
-			} else {
-				resp = Arrays.asList(rt.getForObject(url, response));
-			}
-		} catch (RestClientException e) {
-			LOGGER.error("Error processing request", e);
-			resp = new ArrayList<>();
-		}
-		return resp;
-	}
-
-	public <T> ResponseEntity<T> processRequestExtended(String url, Map<String, ?> parameters, Class<T> response) {
-
-		Map<String, String> headers = new HashMap<>();
-
-		headers.put("Content-Type", "application/x-www-form-urlencoded");
-
-		HttpEntity<T> request = null;
-		try {
-			request = new HttpEntity<>(response.newInstance());
-			request.getHeaders().setAll(headers);
-		} catch (InstantiationException | IllegalAccessException e) {
-
-			LOGGER.error("error processing resquest extended ", e);
-		}
-		
-			return rt.exchange(url, HttpMethod.POST, request, response, parameters);
-		
-	}
-
 	public <T> ResponseEntity<T> processRequestBase(String url, Map<String, String> obj, Class<T> response,
 			HttpMethod method) {
 
-		
+
 
 		HttpHeaders headers = getBasicHeaders();
 		HttpEntity<String> request = null;
@@ -202,15 +133,15 @@ public final class RestTemplateHelper {
 		} catch (JsonProcessingException e) {
 			LOGGER.error("processRequest", e);
 		}
-		
+
 			String uri = (obj == null) ? url : builder.buildAndExpand(obj).toUri().toString();
 			return rt.exchange(uri, method, request, response);
-		
+
 	}
 
 	public <T> ResponseEntity<T> processRequestBase(String url, Object request, Class<T> response, HttpMethod method) {
 
-		
+
 
 		ResponseEntity<T> resp = null;
 
@@ -295,10 +226,9 @@ public final class RestTemplateHelper {
 		headers.set(LANGUAGE_HEADER, ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 				.getRequest().getHeader(LANGUAGE_HEADER));
 
-		// headers.set(CLIENT_ID_HEADER, (SecurityHelper.getUserDetails() != null)
-		// ? SecurityHelper.getUserDetails().getSharedKey() : "NO-AUTHENTICATED-" +
-		// UUID.randomUUID());
-		 headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set(PAYMENT_CLIENT_TOKEN, pm.getProperty("PAYMENT.CLIENT.TOKEN"));
+
+		headers.setContentType(MediaType.APPLICATION_JSON);
 		return headers;
 	}
 

@@ -10,30 +10,24 @@
 
 package co.ppk.web.controller;
 import java.util.HashMap;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import co.ppk.dto.BalanceDto;
 import co.ppk.dto.Message;
+import co.ppk.dto.PaymentRequestDto;
+import co.ppk.dto.PaymentServiceDto;
 import co.ppk.service.BusinessManager;
-import co.ppk.validators.MessageValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import co.ppk.enums.ResponseKeyName;
-import co.ppk.service.APIManager;
 
 /**
  * Only service exposition point of services to FE clients layer
@@ -49,17 +43,6 @@ public class ProxyEndpointController extends BaseRestController {
 	private static final Logger LOGGER = LogManager.getLogger(ProxyEndpointController.class);
 
 	private static final String CURRENT_USER_LOCALE = "language";
-
-	/** The error properties. */
-	@Autowired
-	@Qualifier("errorProperties")
-	private Properties errorProperties;
-
-	@Autowired
-	APIManager apiManager;
-
-//	@Autowired
-//	MessageValidator messageValidator;
 
 	@Autowired
 	BusinessManager businessManager;
@@ -164,4 +147,33 @@ public class ProxyEndpointController extends BaseRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 	}
+
+	@RequestMapping(value = "/balance/{customerId}", method = RequestMethod.GET)
+	public ResponseEntity<Object> getBalance(@PathVariable("customerId") String customerId, HttpServletRequest request,
+											 HttpServletResponse response) {
+
+		ResponseEntity<Object> responseEntity;
+			BalanceDto balance = businessManager.getBalance(customerId);
+			responseEntity =  ResponseEntity.ok(balance);
+		return responseEntity;
+	}
+
+    @RequestMapping(value = "/service/{serviceId}", method = RequestMethod.GET)
+    public ResponseEntity<Object> getService(@PathVariable("serviceId") String serviceId, HttpServletRequest request,
+                                             HttpServletResponse response) {
+
+        ResponseEntity<Object> responseEntity;
+        PaymentServiceDto service = businessManager.getPaymentService(serviceId);
+        responseEntity =  ResponseEntity.ok(service);
+        return responseEntity;
+    }
+
+    @RequestMapping(value = "/service/pay", method = RequestMethod.POST)
+    public ResponseEntity<Object> payService(@RequestBody PaymentRequestDto payment,
+                                             BindingResult result, HttpServletRequest request) {
+        ResponseEntity<Object> responseEntity;
+        boolean paymentResponse = businessManager.payService(payment);
+        responseEntity =  ResponseEntity.ok(paymentResponse);
+        return responseEntity;
+    }
 }
