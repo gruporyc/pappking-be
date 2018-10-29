@@ -14,10 +14,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import co.ppk.dto.BalanceDto;
-import co.ppk.dto.Message;
-import co.ppk.dto.PaymentRequestDto;
-import co.ppk.dto.PaymentServiceDto;
+import co.ppk.dto.*;
 import co.ppk.service.BusinessManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -172,7 +169,16 @@ public class ProxyEndpointController extends BaseRestController {
     public ResponseEntity<Object> payService(@RequestBody PaymentRequestDto payment,
                                              BindingResult result, HttpServletRequest request) {
         ResponseEntity<Object> responseEntity;
-        boolean paymentResponse = businessManager.payService(payment);
+        SimpleResponseDto paymentResponse = businessManager.payService(payment);
+        responseEntity =  ResponseEntity.ok(paymentResponse);
+        return responseEntity;
+    }
+
+    @RequestMapping(value = "/customer", method = RequestMethod.POST)
+    public ResponseEntity<Object> createPayentUser(@RequestBody CreatePaymentCustomerDto customer,
+                                             BindingResult result, HttpServletRequest request) {
+        ResponseEntity<Object> responseEntity;
+        SimpleResponseDto paymentResponse = businessManager.createPaymentCustomer(customer);
         responseEntity =  ResponseEntity.ok(paymentResponse);
         return responseEntity;
     }

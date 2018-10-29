@@ -1,8 +1,6 @@
 package co.ppk.service;
 
-import co.ppk.dto.BalanceDto;
-import co.ppk.dto.PaymentRequestDto;
-import co.ppk.dto.PaymentServiceDto;
+import co.ppk.dto.*;
 
 public interface BusinessManager {
 
@@ -30,6 +28,8 @@ public interface BusinessManager {
 
     String authorizedConsultation(String queryText);
 
+    SimpleResponseDto createPaymentCustomer(CreatePaymentCustomerDto request);
+
     String checkCustomerBalance(String queryText);
 
     String checkCompanyBalance(String queryText);
@@ -47,5 +47,5 @@ public interface BusinessManager {
 
     PaymentServiceDto getPaymentService(String serviceId);
 
-    boolean payService(PaymentRequestDto payment);
+    SimpleResponseDto payService(PaymentRequestDto payment);
 }

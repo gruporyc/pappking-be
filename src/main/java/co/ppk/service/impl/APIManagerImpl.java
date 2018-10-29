@@ -53,14 +53,27 @@ public class APIManagerImpl implements APIManager {
     }
 
     @Override
-    public Boolean payService(PaymentRequestDto payment) {
+    public SimpleResponseDto payService(PaymentRequestDto payment) {
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("customer_id", payment.getCustomerId());
         requestBody.put("service_id", payment.getServiceId());
         requestBody.put("operator", String.valueOf(payment.getOperator()));
         requestBody.put("amount", String.valueOf(payment.getAmount()));
-        ResponseEntity<Boolean> response = client.processRequestPost(
-                pm.getProperty("ppk.payments.pay.endpoint"), requestBody, Boolean.class);
+        ResponseEntity<SimpleResponseDto> response = client.processRequestPost(
+                pm.getProperty("ppk.payments.pay.endpoint"), requestBody, SimpleResponseDto.class);
+        LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+
+        return response.getBody();
+    }
+
+    @Override
+    public SimpleResponseDto createPaymentCustomer(CreatePaymentCustomerDto customer) {
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("customer_id", customer.getCustomerId());
+        requestBody.put("balance", String.valueOf(customer.getBalance()));
+        requestBody.put("status", customer.getStatus());
+        ResponseEntity<SimpleResponseDto> response = client.processRequestPost(
+                pm.getProperty("ppk.payments.customer.endpoint"), requestBody, SimpleResponseDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
 
         return response.getBody();
