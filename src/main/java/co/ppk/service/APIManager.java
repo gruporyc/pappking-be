@@ -12,9 +12,9 @@ public interface APIManager {
 
     String createCustomer(CustomerDto customer);
 
-    APIResponse setFaceplate(String customerId, String facePlate);
+    String setFaceplate(FaceplateDto faceplate);
 
-    APIResponse getCustomerByIdentification(String identification);
+    CustomerDto getCustomerByIdentification(String identification);
 
     APIResponse createCompany(CustomerDto customer);
 

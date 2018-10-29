@@ -69,7 +69,7 @@ public class ProxyEndpointController extends BaseRestController {
 					break;
 
 				case "registrarPlaca" :
-					serviceResponse = businessManager.registerFacePlate(message.getQueryResult().getQueryText());
+					serviceResponse = businessManager.registerFaceplate(message.getQueryResult().getQueryText());
 					break;
 
 				case "registroEmpresas" :

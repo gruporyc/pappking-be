@@ -113,20 +113,22 @@ public class APIManagerImpl implements APIManager {
     }
 
 	@Override
-	public APIResponse getCustomerByIdentification(String identification) {
-        String s = pm.getProperty("ppk.customer.identification.endpoint") + "/" + identification;
-        ResponseEntity<Object> response = client.processRequestGet(
-				pm.getProperty("ppk.customer.identification.endpoint") + "/" + identification, Object.class);
+	public CustomerDto getCustomerByIdentification(String identification) {
+       ResponseEntity<CustomerDto> response = client.processRequestGet(
+               pm.getProperty("ppk.customer.identification.endpoint") + "/" + identification, CustomerDto.class);
 
-		return new APIResponse(response.getStatusCode().value(), response.getBody());
+		return  response.getBody();
 
 	}
 
 	@Override
-    public APIResponse setFaceplate(String customerId, String facePlate) {
-        return new APIResponse(200, new HashMap<String,Object>() {{
-            put("success", true);
-        }});
+    public String setFaceplate(FaceplateDto faceplate) {
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("faceplate", faceplate.getFaceplate());
+        requestBody.put("customerid", faceplate.getCustomerid());
+        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.customer.base.endpoint") + "/faceplate/",
+                requestBody, String.class);
+        return response.getBody();
     }
 
 
