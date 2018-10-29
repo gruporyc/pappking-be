@@ -479,8 +479,13 @@ public class BusinessManagerImpl implements BusinessManager{
     }
 
     @Override
-    public boolean payService(PaymentRequestDto payment) {
+    public SimpleResponseDto payService(PaymentRequestDto payment) {
         return apiManager.payService(payment);
+    }
+
+    @Override
+    public SimpleResponseDto createPaymentCustomer(CreatePaymentCustomerDto request) {
+        return apiManager.createPaymentCustomer(request);
     }
 
     @Override

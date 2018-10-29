@@ -56,5 +56,7 @@ public interface APIManager {
 
     PaymentServiceDto getPaymentService(String serviceId);
 
-    Boolean payService(PaymentRequestDto payment);
+    SimpleResponseDto payService(PaymentRequestDto payment);
+
+    SimpleResponseDto createPaymentCustomer(CreatePaymentCustomerDto customer);
 }
