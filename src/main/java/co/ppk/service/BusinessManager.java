@@ -6,7 +6,7 @@ public interface BusinessManager {
 
     String customersRegister(String queryText);
 
-    String registerFacePlate(String queryText);
+    String registerFaceplate(String queryText);
 
     String companyRegister(String queryText);
 

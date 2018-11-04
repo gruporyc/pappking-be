@@ -34,7 +34,7 @@ public class BusinessManagerImpl implements BusinessManager{
         String[] data = messageHelper.asArray(queryText);
         String response = "";
         if(5!=data.length) {
-            response = REQUEST_DATA_ERROR_CUSTOMER;
+            return  REQUEST_DATA_ERROR_CUSTOMER;
         }
         try{
             CustomerDto customer = new CustomerDto();
@@ -54,44 +54,32 @@ public class BusinessManagerImpl implements BusinessManager{
     }
 
     @Override
-    public String registerFacePlate(String queryText) {
+    public String registerFaceplate(String queryText) {
         /** TODO Implement business logic for end service */
         String response = "";
         String[] data = messageHelper.asArray(queryText);
-        if(data.length == 3) {
-            try {
-                APIResponse customerResponse = apiManager.getCustomerByIdentification(data[1]);
-                if (customerResponse.getHttpCode() == 200) {
-                    Gson gson = new Gson();
-                    String customer = String.valueOf(new JSONObject(gson.toJson(customerResponse.getBody())).get("customer"));
-                    String id = String.valueOf(new JSONObject(customer).get("id"));
-
-                    APIResponse facePlateResponse = apiManager.setFaceplate(id, data[2]);
-                    switch (facePlateResponse.getHttpCode()) {
-                        case 200:
-                            response = FACEPLATE_REGISTER_SUCCESS + data[2];
-                            break;
-                        case 304:
-                            response = FACEPLATE_ALREADY_EXISTS;
-                            break;
-                    }
-                }
-            } catch (HttpClientErrorException e) {
-                if (e.getStatusCode().value() == 404) {
-                    response = CUSTOMER_NOT_EXISTS;
-                } else {
-                    response = UNEXPECTED_ERROR;
-                    e.printStackTrace();
-                }
-            } catch (JSONException e) {
-                response = UNEXPECTED_ERROR;
-                e.printStackTrace();
-            }
-        } else {
-            response =  REQUEST_DATA_ERROR_FACEPLATE;
+        if (3 != data.length) {
+            return REQUEST_DATA_ERROR_FACEPLATE;
         }
-        return response;
+        try {
+            CustomerDto customerResponse = apiManager.getCustomerByIdentification(data[1]);
+            if (Objects.isNull(customerResponse.getId()) || customerResponse.getId().isEmpty()) {
+                return CUSTOMER_NOT_EXISTS;
+            }
+            FaceplateDto faceplate = new FaceplateDto();
+            faceplate.setFaceplate(data[2]);
+            faceplate.setCustomerid(customerResponse.getId());
+            String faceplateResponse = apiManager.setFaceplate(faceplate);
+            if (faceplateResponse.equals("S")) {
+                return FACEPLATE_ALREADY_EXISTS;
+            }
+            return FACEPLATE_REGISTER_SUCCESS + data[2];
+        } catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
+
 
     @Override
     public String companyRegister(String queryText) {
@@ -122,6 +110,8 @@ public class BusinessManagerImpl implements BusinessManager{
         }
         return response;
     }
+
+
 
     @Override
     public String initService(String queryText, String session) {
