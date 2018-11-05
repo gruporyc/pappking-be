@@ -42,6 +42,11 @@ public interface BusinessManager {
 
     String generatePromotion(String queryText);
 
+    String chargeBalance(String queryText);
+
+
+
+
 
     BalanceDto getBalance(String customerId);
 

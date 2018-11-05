@@ -135,6 +135,11 @@ public class ProxyEndpointController extends BaseRestController {
 				case "eliminarValla" :
 					serviceResponse = businessManager.deleteBillboard(message.getQueryResult().getQueryText());
 					break;
+
+				case "recargaSaldo" :
+					serviceResponse = businessManager.chargeBalance(message.getQueryResult().getQueryText());
+					break;
+
 			}
 			response.put("fulfillmentText",serviceResponse);
 			System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%"+response);

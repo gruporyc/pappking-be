@@ -47,12 +47,14 @@ public interface APIManager {
 
     OperatorDto getOperatorById(String id);
 
-
+    FaceplateDto getFaceplateByFaceplate (String faceplate);
 
     void updateTransaction(TransactionDto transaction);
     void updateBillboard(BillboardDto billboard);
     void deleteTemporalTransaction (String id);
     void delleteBillboard(String billboardId);
+
+
 
     PaymentServiceDto getPaymentService(String serviceId);
 
