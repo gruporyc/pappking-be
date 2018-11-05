@@ -55,10 +55,11 @@ public class APIManagerImpl implements APIManager {
     @Override
     public SimpleResponseDto payService(PaymentRequestDto payment) {
         Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("customer_id", payment.getCustomerId());
-        requestBody.put("service_id", payment.getServiceId());
+        requestBody.put("customerId", payment.getCustomerId());
+        requestBody.put("serviceId", payment.getServiceId());
         requestBody.put("operator", String.valueOf(payment.getOperator()));
         requestBody.put("amount", String.valueOf(payment.getAmount()));
+        String ver =  pm.getProperty("ppk.payments.pay.endpoint");
         ResponseEntity<SimpleResponseDto> response = client.processRequestPost(
                 pm.getProperty("ppk.payments.pay.endpoint"), requestBody, SimpleResponseDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
@@ -191,6 +192,15 @@ public class APIManagerImpl implements APIManager {
 
         ResponseEntity<OperatorDto> response = client.processRequestGet(
                 pm.getProperty("ppk.operator.base.endpoint") + "/" + id, OperatorDto.class);
+        //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
+        return response.getBody();
+    }
+
+    @Override
+    public FaceplateDto getFaceplateByFaceplate(String faceplate) {
+
+        ResponseEntity<FaceplateDto> response = client.processRequestGet(
+                pm.getProperty("ppk.customer.base.endpoint") + "/faceplate/" + faceplate, FaceplateDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
     }

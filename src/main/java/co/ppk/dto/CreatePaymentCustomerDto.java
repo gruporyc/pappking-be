@@ -7,7 +7,7 @@ public class CreatePaymentCustomerDto {
     private double Balance;
     private String Status;
 
-    @JsonProperty("customer_id")
+    @JsonProperty("customerid")
     public String getCustomerId() {
         return customerId;
     }

@@ -8,7 +8,7 @@ public class PaymentRequestDto {
     private Boolean operator;
     private float amount;
 
-    @JsonProperty("customer_id")
+    @JsonProperty("customerId")
     public String getCustomerId() {
         return customerId;
     }
@@ -17,7 +17,7 @@ public class PaymentRequestDto {
         this.customerId = customerId;
     }
 
-    @JsonProperty("service_id")
+    @JsonProperty("serviceId")
     public String getServiceId() {
         return serviceId;
     }

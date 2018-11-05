@@ -47,6 +47,9 @@ public class BusinessManagerImpl implements BusinessManager{
                 return CUSTOMER_ALREADY_EXISTS;
             }
             //ENVIAR A PAGOS EL customerResponse que es el ID
+            CreatePaymentCustomerDto paymentCustomer = new CreatePaymentCustomerDto();
+            paymentCustomer.setCustomerId(customerResponse);
+            apiManager.createPaymentCustomer(paymentCustomer);
             return CUSTOMER_REGISTER_SUCCESS;
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -190,9 +193,27 @@ public class BusinessManagerImpl implements BusinessManager{
                 return response;
             }
             currentTransaction.setClosed("P");
-            //LLAMADA A PAGOS y PROMOCIONES
+            FaceplateDto faceplateResponse = apiManager.getFaceplateByFaceplate(data[1]);
+            if (Objects.isNull(faceplateResponse.getId()) || faceplateResponse.getId().isEmpty() ) {
+                apiManager.updateTransaction(currentTransaction);
+                return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price+", favor realice su pago en efectivo al operador Pappking, Le invitamos a registrarse como usuario frecuente para que disfrute los beneficios, Consulte al operador.";
+            }
+            BalanceDto balance = apiManager.getCustomerBalance(faceplateResponse.getCustomerid());
+            if (balance.getBalance() < price ) {
+              apiManager.updateTransaction(currentTransaction);
+              return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price+ ", Su saldo no es suficiente para el pago de esta transaccion por favor realice su pago en efectivo al operador pappking";
+            }
+            PaymentRequestDto paymentService = new PaymentRequestDto();
+            paymentService.setCustomerId(faceplateResponse.getCustomerid());
+            paymentService.setServiceId(currentTransaction.getId());
+            paymentService.setOperator(false);
+            paymentService.setAmount(price);
+            apiManager.payService(paymentService);
             apiManager.updateTransaction(currentTransaction);
-            return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price;
+            return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price+", Su pago fue descontado de su saldo Pappking";
+
+            //LLAMADA A PAGOS y PROMOCIONES
+
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -238,10 +259,10 @@ public class BusinessManagerImpl implements BusinessManager{
 
     @Override
     public String endConfirmation(String queryText) {
-        // SALIDA PLACA
+        // SALIDA  PLACA CEDULA_OPERADOR
         String[] data = messageHelper.asArray(queryText);
         String response = "";
-        if(2!=data.length) {
+        if(3!=data.length) {
             return REQUEST_DATA_ERROR_END_CONFIRMATION;
         }
         try{
@@ -267,6 +288,11 @@ public class BusinessManagerImpl implements BusinessManager{
             transaction.setClosed("S");
             apiManager.updateTransaction(transaction);
             apiManager.deleteTemporalTransaction(temporalTransaction.getId());
+            PaymentServiceDto currentPayment = apiManager.getPaymentService(currentTransaction.getId());
+            if (Objects.nonNull(currentPayment.getId()) && !currentPayment.getId().isEmpty() && currentPayment.getStatus().equals("APPROVED") ) {
+                return END_CONFIRMATION_SUCCESS+data[1]+" La transaccion ya fue pagada";
+            }
+            //BUSCAR OPERADOR
             //LLAMADA A PAGOS Y TRANSACCIONES
             return END_CONFIRMATION_SUCCESS+data[1];
 
@@ -513,6 +539,23 @@ public class BusinessManagerImpl implements BusinessManager{
     public String redeemPromotion(String queryText) {
         /** TODO Implement business logic for Start Confirmation */
         return "Prueba redimePromocion";
+    }
+
+    @Override
+    public String chargeBalance(String queryText) {
+        String[] data = messageHelper.asArray(queryText);
+        //recarga cedula
+        if(2 != data.length) {
+            /**TODO: Update this error message */
+            return REQUEST_DATA_ERROR_CHARGE_BALANCE;
+        }
+        CustomerDto customerResponse = apiManager.getCustomerByIdentification(data[1]);
+        if (Objects.isNull(customerResponse.getId()) || customerResponse.getId().isEmpty()) {
+            return CUSTOMER_NOT_EXISTS;
+        }
+        /** TODO Implement business logic for Start Confirmation */
+        return URL_CHARGE_BALANCE + customerResponse.getId();
+
     }
 
 }
