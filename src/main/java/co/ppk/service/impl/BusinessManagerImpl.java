@@ -58,7 +58,7 @@ public class BusinessManagerImpl implements BusinessManager{
 
     @Override
     public String registerFaceplate(String queryText) {
-        /** TODO Implement business logic for end service */
+        //PLACA CEDULA PLACA_VEHICULO
         String response = "";
         String[] data = messageHelper.asArray(queryText);
         if (3 != data.length) {
@@ -146,7 +146,7 @@ public class BusinessManagerImpl implements BusinessManager{
 
             String resp = apiManager.setTemporalTransaction(transaction);
             if (resp.equals("S"))
-                return START_TRANSACTION_SUCCESS + data[2];
+                return START_TRANSACTION_SUCCESS + data[2] + ", a las " +  transaction.getHour() + " del dia " + transaction.getDate();
             return resp;
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -196,12 +196,12 @@ public class BusinessManagerImpl implements BusinessManager{
             FaceplateDto faceplateResponse = apiManager.getFaceplateByFaceplate(data[1]);
             if (Objects.isNull(faceplateResponse.getId()) || faceplateResponse.getId().isEmpty() ) {
                 apiManager.updateTransaction(currentTransaction);
-                return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price+", favor realice su pago en efectivo al operador Pappking, Le invitamos a registrarse como usuario frecuente para que disfrute los beneficios, Consulte al operador.";
+                return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price+"$, el valor del minuto es de "+value+"$, favor realice su pago en efectivo al operador Pappking. \n Le invitamos a registrarse como usuario frecuente para que disfrute los beneficios, Consulte al operador.";
             }
             BalanceDto balance = apiManager.getCustomerBalance(faceplateResponse.getCustomerid());
             if (balance.getBalance() < price ) {
               apiManager.updateTransaction(currentTransaction);
-              return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price+ ", Su saldo no es suficiente para el pago de esta transaccion por favor realice su pago en efectivo al operador pappking";
+              return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price+ "$, el valor del minuto es de "+value+"$, su saldo Pappking no es suficiente para el pago de esta transaccion por favor realice su pago en efectivo al operador Pappking.\n  Le invitamos a realizar una recarga de saldo Pappking ";
             }
             PaymentRequestDto paymentService = new PaymentRequestDto();
             paymentService.setCustomerId(faceplateResponse.getCustomerid());
@@ -210,7 +210,7 @@ public class BusinessManagerImpl implements BusinessManager{
             paymentService.setAmount(price);
             apiManager.payService(paymentService);
             apiManager.updateTransaction(currentTransaction);
-            return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price+", Su pago fue descontado de su saldo Pappking";
+            return TRANSACTION_COMPLETED+data[1]+TRANSACTION_COMPLETED_TIME+minutes+TRANSACTION_COMPLETED_PAYMENT+price+"$, el valor del minuto es de "+value+"$ su pago fue descontado de su saldo Pappking";
 
             //LLAMADA A PAGOS y PROMOCIONES
 
@@ -248,7 +248,7 @@ public class BusinessManagerImpl implements BusinessManager{
             apiManager.setConfirmedInitTransactionByFacePlate(transaction);
             apiManager.deleteTemporalTransaction(temporalTransaction.getId());
 
-            response = START_CONFIRMATION_SUCCESS+data[1];
+            response = START_CONFIRMATION_SUCCESS+data[1] + ", a las " +  temporalTransaction.getHour() + " del dia " + temporalTransaction.getDate();
 
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -290,11 +290,11 @@ public class BusinessManagerImpl implements BusinessManager{
             apiManager.deleteTemporalTransaction(temporalTransaction.getId());
             PaymentServiceDto currentPayment = apiManager.getPaymentService(currentTransaction.getId());
             if (Objects.nonNull(currentPayment.getId()) && !currentPayment.getId().isEmpty() && currentPayment.getStatus().equals("APPROVED") ) {
-                return END_CONFIRMATION_SUCCESS+data[1]+" La transaccion ya fue pagada";
+                return END_CONFIRMATION_SUCCESS+data[1]+ ", el tiempo Pappking termino a las " +  temporalTransaction.getHour() + ", del dia " + temporalTransaction.getDate() + ", el tiempo del servicio fue de: "+ temporalTransaction.getTime()+" minutos y el monto generado fue de: " + temporalTransaction.getPrice() +"$ \n La transaccion ya fue pagada";
             }
             //BUSCAR OPERADOR
             //LLAMADA A PAGOS Y TRANSACCIONES
-            return END_CONFIRMATION_SUCCESS+data[1];
+            return END_CONFIRMATION_SUCCESS+data[1] + ", el tiempo Pappking termino a las " +  temporalTransaction.getHour() + ", del dia " + temporalTransaction.getDate() + ", el tiempo del servicio fue de: "+ temporalTransaction.getTime()+" minutos y el monto generado fue de: " + temporalTransaction.getPrice() +"$ \n La transaccion se encuentra pendiente de pago";
 
         }catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -506,8 +506,26 @@ public class BusinessManagerImpl implements BusinessManager{
 
     @Override
     public String checkCustomerBalance(String queryText) {
-        /** TODO Implement business logic for Start Confirmation */
-        return "Prueba consultaSaldoCliente";
+        //SALDO CEDULA
+        String response = "";
+        String[] data = messageHelper.asArray(queryText);
+        if (2 != data.length) {
+            return REQUEST_DATA_ERROR_CHECK_CUSTOMER_BALANCE;
+        }
+        try {
+            CustomerDto customerResponse = apiManager.getCustomerByIdentification(data[1]);
+            if (Objects.isNull(customerResponse.getId()) || customerResponse.getId().isEmpty()) {
+                return CUSTOMER_NOT_EXISTS;
+            }
+            BalanceDto balance = apiManager.getCustomerBalance(customerResponse.getId());
+            if (Objects.isNull(balance.getId()) || balance.getId().isEmpty()) {
+
+                return GET_BALANCE_ERROR;
+            }
+            return CUSTOMER_BALANCE_INFORMATION + customerResponse.getName() + " "+customerResponse.getLastName()+ CUSTOMER_BALANCE_AMOUNT + balance.getBalance();
+        }catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
