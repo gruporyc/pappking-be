@@ -16,7 +16,8 @@ public interface Messages {
     String REQUEST_DATA_ERROR_START_SERVICE = "Error en datos, ejemplo de comando:  inicio codigoValla Placa";
     String TRANSACTION_COMPLETED = "Finalizo el conteo del tiempo Pappking para la placa: ";
     String TRANSACTION_COMPLETED_TIME = " su tiempo de parqueo es: ";
-    String TRANSACTION_COMPLETED_PAYMENT = " el valor Pappking es: ";
+    String TRANSACTION_COMPLETED_PAYMENT = "minutos el valor Pappking es: ";
+
     String TRANSACTION_COMPLETED_ERROR = "Se produjo un error al finalizar su tiempo Pappking, por favor intente de nuevo";
     String REQUEST_DATA_ERROR_END_SERVICE = "Error en datos, ejemplo de comando:  FIN Placa";
     String CONFIRMED_TRANSACTION_NOT_EXIST = "No existe una transaccion de inicio confirmada para el vehiculo placas: ";
@@ -38,9 +39,11 @@ public interface Messages {
     String AUTHORIZED = "VEHICULO AUTORIZADO PARA PARQUEAR EN LA VALLA: ";
     String UNAUTHORIZED = "VEHICULO NO AUTORIZADO PARA SERVICIO PAPPKING";
     String REQUEST_DATA_ERROR_CHARGE_BALANCE = "COMANDO INVALIDO, ENVIE LA PALABRA RECARGA MAS SU NUMERO DE DOCUEMNTO, EJEMPLO: RECARGA 12345678965";
-    String URL_CHARGE_BALANCE=  "Siga el siguiente enlace para realizar su recarga de saldo: '\n'   https://www.pappkingws.com/payments/customer/";
-
-
+    String URL_CHARGE_BALANCE=  "Siga el siguiente enlace para realizar su recarga de saldo: \n   http://payments.pappkingws.com/payments/customer/";
+    String REQUEST_DATA_ERROR_CHECK_CUSTOMER_BALANCE = "COMANDO INVALIDO, EJEMPLO DE COMANDO: CONSULTA NUMERO_DOCUMENTO";
+    String GET_BALANCE_ERROR = "SE PRESENTO UN ERROR RECUPERANDO EL SALDO ACTUAL, FAVOR INTENTE DE NUEVO O CONSULTE CON UN OPERADOR PAPPKING";
+    String CUSTOMER_BALANCE_INFORMATION = "CONSULTA DE SALDO PARA CLIENTE: ";
+    String CUSTOMER_BALANCE_AMOUNT = " SU SALDO ACTUAL ES: ";
 
 
 

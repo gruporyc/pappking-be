@@ -140,6 +140,10 @@ public class ProxyEndpointController extends BaseRestController {
 					serviceResponse = businessManager.chargeBalance(message.getQueryResult().getQueryText());
 					break;
 
+				case "consultaSaldo" :
+					serviceResponse = businessManager.checkCustomerBalance(message.getQueryResult().getQueryText());
+					break;
+
 			}
 			response.put("fulfillmentText",serviceResponse);
 			System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%"+response);
