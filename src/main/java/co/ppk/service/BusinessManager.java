@@ -1,5 +1,8 @@
 package co.ppk.service;
 
+
+import co.ppk.dto.PaymentRequestDto;
+import co.ppk.dto.PaymentServiceDto;
 import co.ppk.dto.*;
 
 public interface BusinessManager {
@@ -53,4 +56,6 @@ public interface BusinessManager {
     PaymentServiceDto getPaymentService(String serviceId);
 
     SimpleResponseDto payService(PaymentRequestDto payment);
+
+    SimpleResponseDto signUp(UserDto customer);
 }

@@ -1,10 +1,10 @@
 package co.ppk.exception;
 
-import java.io.Serializable;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+
+import java.io.Serializable;
 
 /**
  * 

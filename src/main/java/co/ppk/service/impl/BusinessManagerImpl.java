@@ -3,13 +3,13 @@ package co.ppk.service.impl;
 import co.ppk.dto.*;
 import co.ppk.service.APIManager;
 import co.ppk.service.BusinessManager;
+import co.ppk.dto.*;
+import co.ppk.service.APIManager;
+import co.ppk.service.BusinessManager;
 import co.ppk.utilities.HourGeneration;
 import co.ppk.utilities.MessageHelper;
 import co.ppk.utilities.TimeCalculation;
-import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -20,7 +20,7 @@ import static co.ppk.utilities.Messages.*;
 
 
 @Component
-public class BusinessManagerImpl implements BusinessManager{
+public class BusinessManagerImpl implements BusinessManager {
 
     @Autowired
     APIManager apiManager;
@@ -37,18 +37,18 @@ public class BusinessManagerImpl implements BusinessManager{
             return  REQUEST_DATA_ERROR_CUSTOMER;
         }
         try{
-            CustomerDto customer = new CustomerDto();
+            UserDto customer = new UserDto();
             customer.setIdentification(data[1]);
             customer.setName(data[2]);
             customer.setLastName(data[3]);
             customer.setEmail(data[4]);
-            String customerResponse = apiManager.createCustomer(customer);
+            SimpleResponseDto customerResponse = apiManager.createCustomer(customer);
             if (customerResponse.equals("S")) {
                 return CUSTOMER_ALREADY_EXISTS;
             }
             //ENVIAR A PAGOS EL customerResponse que es el ID
             CreatePaymentCustomerDto paymentCustomer = new CreatePaymentCustomerDto();
-            paymentCustomer.setCustomerId(customerResponse);
+            paymentCustomer.setCustomerId(customerResponse.getMessage());
             apiManager.createPaymentCustomer(paymentCustomer);
             return CUSTOMER_REGISTER_SUCCESS;
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class BusinessManagerImpl implements BusinessManager{
             return REQUEST_DATA_ERROR_FACEPLATE;
         }
         try {
-            CustomerDto customerResponse = apiManager.getCustomerByIdentification(data[1]);
+            UserDto customerResponse = apiManager.getCustomerByIdentification(data[1]);
             if (Objects.isNull(customerResponse.getId()) || customerResponse.getId().isEmpty()) {
                 return CUSTOMER_NOT_EXISTS;
             }
@@ -91,7 +91,7 @@ public class BusinessManagerImpl implements BusinessManager{
         String[] data = messageHelper.asArray(queryText);
         String response = "";
         if(4==data.length) {
-            CustomerDto customer = new CustomerDto();
+            UserDto customer = new UserDto();
             customer.setIdentification(data[1]);
             customer.setName(data[2]);
             customer.setEmail(data[3]);
@@ -500,6 +500,28 @@ public class BusinessManagerImpl implements BusinessManager{
     }
 
     @Override
+    public SimpleResponseDto signUp(UserDto customer) {
+        SimpleResponseDto response = new SimpleResponseDto();
+        response.isSuccess(false);
+        try {
+            SimpleResponseDto customerResponse = apiManager.createCustomer(customer);
+            if (customerResponse.equals("S")) {
+                response.isSuccess(true);
+                response.setMessage(CUSTOMER_ALREADY_EXISTS);
+                return response;
+            }
+            //ENVIAR A PAGOS EL customerResponse que es el ID
+            CreatePaymentCustomerDto paymentCustomer = new CreatePaymentCustomerDto();
+            paymentCustomer.setCustomerId(customerResponse.getMessage());
+            apiManager.createPaymentCustomer(paymentCustomer);
+            response.setMessage(CUSTOMER_REGISTER_SUCCESS);
+            return response;
+        } catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
     public SimpleResponseDto createPaymentCustomer(CreatePaymentCustomerDto request) {
         return apiManager.createPaymentCustomer(request);
     }
@@ -513,7 +535,7 @@ public class BusinessManagerImpl implements BusinessManager{
             return REQUEST_DATA_ERROR_CHECK_CUSTOMER_BALANCE;
         }
         try {
-            CustomerDto customerResponse = apiManager.getCustomerByIdentification(data[1]);
+            UserDto customerResponse = apiManager.getCustomerByIdentification(data[1]);
             if (Objects.isNull(customerResponse.getId()) || customerResponse.getId().isEmpty()) {
                 return CUSTOMER_NOT_EXISTS;
             }
@@ -567,7 +589,7 @@ public class BusinessManagerImpl implements BusinessManager{
             /**TODO: Update this error message */
             return REQUEST_DATA_ERROR_CHARGE_BALANCE;
         }
-        CustomerDto customerResponse = apiManager.getCustomerByIdentification(data[1]);
+        UserDto customerResponse = apiManager.getCustomerByIdentification(data[1]);
         if (Objects.isNull(customerResponse.getId()) || customerResponse.getId().isEmpty()) {
             return CUSTOMER_NOT_EXISTS;
         }

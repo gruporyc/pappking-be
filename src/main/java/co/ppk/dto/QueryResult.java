@@ -3,7 +3,6 @@ package co.ppk.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
 
 public class QueryResult {
 

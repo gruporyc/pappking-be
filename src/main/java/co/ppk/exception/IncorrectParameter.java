@@ -1,8 +1,8 @@
 package co.ppk.exception;
 
-import java.io.Serializable;
-
 import org.springframework.http.HttpStatus;
+
+import java.io.Serializable;
 
 /**
  * Exception handler for incorrect request parameters

@@ -1,8 +1,8 @@
 package co.ppk.utilities;
 
 import java.text.DateFormat;
-import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class HourGeneration {
     Date datetime = new Date();

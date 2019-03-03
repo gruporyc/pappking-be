@@ -9,19 +9,11 @@
  ******************************************************************/
 package co.ppk.utilities;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.net.ssl.SSLContext;
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -29,27 +21,23 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import javax.net.ssl.SSLContext;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility for abstract complexity in the interactions with restful services
@@ -72,8 +60,8 @@ public final class RestTemplateHelper {
 	private RestTemplate rt;
 	private ObjectMapper om;
 
-    @Autowired
-    private PropertyManager pm;
+	@Value("${payment.client.token}")
+	private String paymentCientToken;
 
 	/**
 	 * empty constructor that configure the component responsible of the objects
@@ -121,7 +109,7 @@ public final class RestTemplateHelper {
 	}
 
 	public <T> ResponseEntity<T> processRequestBase(String url, Map<String, String> obj, Class<T> response,
-			HttpMethod method) {
+                                                  HttpMethod method) {
 
 
 
@@ -170,7 +158,7 @@ public final class RestTemplateHelper {
 	}
 
 	public <T> ResponseEntity<T> processRequestBase(String url, Map<String, String> obj, Class<T> response,
-			HttpMethod method, Map<String, String> queryParams) {
+                                                  HttpMethod method, Map<String, String> queryParams) {
 
 		// LOGGER.debug("url=" + url);
 
@@ -200,7 +188,7 @@ public final class RestTemplateHelper {
 	}
 
 	public <T> ResponseEntity<T> processRequestBase(String url, List<Map<String, String>> obj, Class<T> response,
-			HttpMethod method) {
+                                                  HttpMethod method) {
 
 		HttpHeaders headers = getBasicHeaders();
 		HttpEntity<String> request = null;
@@ -226,7 +214,7 @@ public final class RestTemplateHelper {
 		headers.set(LANGUAGE_HEADER, ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 				.getRequest().getHeader(LANGUAGE_HEADER));
 
-		headers.set(PAYMENT_CLIENT_TOKEN, pm.getProperty("PAYMENT.CLIENT.TOKEN"));
+		headers.set(PAYMENT_CLIENT_TOKEN, paymentCientToken);
 
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		return headers;
@@ -239,7 +227,7 @@ public final class RestTemplateHelper {
 	public <T> ResponseEntity<T> processRequestPost(String url, Map<String, String> obj, Class<T> response) {
 		return processRequestBase(url, obj, response, HttpMethod.POST);
 	}
-	public <T> ResponseEntity<T> processRequestPostParams(String url, Map<String, String> obj, Class<T> response,Map<String, String> queryParams) {
+	public <T> ResponseEntity<T> processRequestPostParams(String url, Map<String, String> obj, Class<T> response, Map<String, String> queryParams) {
 		return processRequestBase(url, obj, response, HttpMethod.POST,queryParams);
 	}
 
@@ -256,7 +244,7 @@ public final class RestTemplateHelper {
 	}
 
 	public <T> ResponseEntity<T> processRequestGet(String url, Map<String, String> obj, Class<T> response,
-			Map<String, String> queryParams) {
+                                                 Map<String, String> queryParams) {
 		return processRequestBase(url, obj, response, HttpMethod.GET, queryParams);
 	}
 

@@ -8,7 +8,7 @@ public class SimpleResponseDto {
     private String message;
 
     @JsonProperty("success")
-    public boolean isSuccess() {
+    public boolean isSuccess(boolean b) {
         return success;
     }
 

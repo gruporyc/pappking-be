@@ -1,16 +1,17 @@
 package co.ppk.service.impl;
 
 import co.ppk.dto.*;
+import co.ppk.service.APIManager;
+import co.ppk.dto.*;
 import co.ppk.model.PaymentInfoRequest;
+import co.ppk.service.APIManager;
+import co.ppk.utilities.RestTemplateHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import co.ppk.service.APIManager;
-import co.ppk.utilities.PropertyManager;
-import co.ppk.utilities.RestTemplateHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +24,24 @@ public class APIManagerImpl implements APIManager {
 	@Autowired
 	private RestTemplateHelper client;
 
-	@Autowired
-	private PropertyManager pm;
+    @Value("${ppk.payments.service.endpoint}")
+    private String ppkPaymentsServiceEndpoint;
+    @Value("${ppk.payments.balance.endpoint}")
+    private String ppkPaymentsBalanceEndpoint;
+    @Value("${ppk.payments.pay.endpoint}")
+    private String ppkPaymentsPayEndpoint;
+    @Value("${ppk.payments.customer.endpoint}")
+    private String ppkPaymentsCustomerEndpoint;
+    @Value("${ppk.customer.identification.endpoint}")
+    private String ppkCustomerIdentificationEndpoint;
+    @Value("${ppk.transaction.base.endpoint}")
+    private String ppkTransactionBaseEndpoint;
+    @Value("${ppk.operator.base.endpoint}")
+    private String ppkOperatorBaseEndpoint;
+    @Value("${ppk.payments.base.endpoint}")
+    private String ppkPaymentsBaseEndpoint;
+    @Value("${ppk.customer.base.endpoint}")
+    private String ppkCustomerBaseEndpoint;
 
 	@Override
 	public APIResponse getPaymentInfo(PaymentInfoRequest paymentRequest) {
@@ -37,7 +54,7 @@ public class APIManagerImpl implements APIManager {
     @Override
     public BalanceDto getCustomerBalance(String customerId) {
         ResponseEntity<BalanceDto> response = client.processRequestGet(
-                pm.getProperty("ppk.payments.balance.endpoint") + "/" + customerId, BalanceDto.class);
+            ppkPaymentsBalanceEndpoint + "/" + customerId, BalanceDto.class);
 		LOGGER.debug("Response Status=======================  " + response.getStatusCode());
 
         return response.getBody();
@@ -46,7 +63,7 @@ public class APIManagerImpl implements APIManager {
     @Override
     public PaymentServiceDto getPaymentService(String serviceId) {
         ResponseEntity<PaymentServiceDto> response = client.processRequestGet(
-                pm.getProperty("ppk.payments.service.endpoint") + "/" + serviceId, PaymentServiceDto.class);
+                ppkPaymentsServiceEndpoint + "/" + serviceId, PaymentServiceDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
 
         return response.getBody();
@@ -59,9 +76,8 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("serviceId", payment.getServiceId());
         requestBody.put("operator", String.valueOf(payment.getOperator()));
         requestBody.put("amount", String.valueOf(payment.getAmount()));
-        String ver =  pm.getProperty("ppk.payments.pay.endpoint");
         ResponseEntity<SimpleResponseDto> response = client.processRequestPost(
-                pm.getProperty("ppk.payments.pay.endpoint"), requestBody, SimpleResponseDto.class);
+            ppkPaymentsPayEndpoint, requestBody, SimpleResponseDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
 
         return response.getBody();
@@ -74,14 +90,14 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("balance", String.valueOf(customer.getBalance()));
         requestBody.put("status", customer.getStatus());
         ResponseEntity<SimpleResponseDto> response = client.processRequestPost(
-                pm.getProperty("ppk.payments.customer.endpoint"), requestBody, SimpleResponseDto.class);
+            ppkPaymentsCustomerEndpoint, requestBody, SimpleResponseDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
 
         return response.getBody();
     }
 
-	@Override
-	public String createCustomer(CustomerDto customer) {
+  @Override
+	public SimpleResponseDto createCustomer(UserDto customer) {
 		Map<String, String> requestBody = new HashMap<>();
 		requestBody.put("identification", customer.getIdentification());
 		requestBody.put("name", customer.getName());
@@ -91,15 +107,15 @@ public class APIManagerImpl implements APIManager {
 		requestBody.put("phone", customer.getPhone());
 		requestBody.put("type", "C");
 		requestBody.put("status", "ACTIVE");
-        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.customer.base.endpoint"),
-                requestBody, String.class);
+        ResponseEntity<SimpleResponseDto> response = client.processRequestPost(ppkCustomerBaseEndpoint,
+                requestBody, SimpleResponseDto.class);
 
         return response.getBody();
 	}
 
 
     @Override
-    public APIResponse createCompany(CustomerDto customer) {
+    public APIResponse createCompany(UserDto customer) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("identification", customer.getIdentification());
         requestBody.put("name", customer.getName());
@@ -108,15 +124,15 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("phone", customer.getPhone());
         requestBody.put("type", "E");
         requestBody.put("status", "ACTIVE");
-        ResponseEntity<Object> response = client.processRequestPostObject(pm.getProperty("ppk.customer.base.endpoint"),
+        ResponseEntity<Object> response = client.processRequestPostObject(ppkCustomerBaseEndpoint,
                 requestBody, Object.class);
         return new APIResponse(response.getStatusCode().value(), response.getBody());
     }
 
 	@Override
-	public CustomerDto getCustomerByIdentification(String identification) {
-       ResponseEntity<CustomerDto> response = client.processRequestGet(
-               pm.getProperty("ppk.customer.identification.endpoint") + "/" + identification, CustomerDto.class);
+	public UserDto getCustomerByIdentification(String identification) {
+       ResponseEntity<UserDto> response = client.processRequestGet(
+           ppkCustomerIdentificationEndpoint + "/" + identification, UserDto.class);
 
 		return  response.getBody();
 
@@ -127,7 +143,7 @@ public class APIManagerImpl implements APIManager {
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("faceplate", faceplate.getFaceplate());
         requestBody.put("customerid", faceplate.getCustomerid());
-        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.customer.base.endpoint") + "/faceplate/",
+        ResponseEntity<String> response = client.processRequestPost(ppkCustomerBaseEndpoint + "/faceplate/",
                 requestBody, String.class);
         return response.getBody();
     }
@@ -137,7 +153,7 @@ public class APIManagerImpl implements APIManager {
     public TransactionTDto getInitTransactionByFacePlate(String facePlate) {
 
         ResponseEntity<TransactionTDto> response = client.processRequestGet(
-                pm.getProperty("ppk.transaction.base.endpoint") + "/init/" + facePlate, TransactionTDto.class);
+                ppkTransactionBaseEndpoint + "/init/" + facePlate, TransactionTDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
 
         return response.getBody();
@@ -147,7 +163,7 @@ public class APIManagerImpl implements APIManager {
     public TransactionTDto getEndTransactionByFacePlate(String facePlate) {
 
         ResponseEntity<TransactionTDto> response = client.processRequestGet(
-                pm.getProperty("ppk.transaction.base.endpoint") + "/end/" + facePlate, TransactionTDto.class);
+                ppkTransactionBaseEndpoint + "/end/" + facePlate, TransactionTDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
 
         return response.getBody();
@@ -156,7 +172,7 @@ public class APIManagerImpl implements APIManager {
     @Override
     public TransactionDto getConfirmedTransactionByFacePlate(String facePlate) {
         ResponseEntity<TransactionDto> response = client.processRequestGet(
-        pm.getProperty("ppk.transaction.base.endpoint") + "/confirmed/" + facePlate, TransactionDto.class);
+        ppkTransactionBaseEndpoint + "/confirmed/" + facePlate, TransactionDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
 
@@ -173,7 +189,7 @@ public class APIManagerImpl implements APIManager {
     public BillboardDto getBillboardByCode(String code) {
 
         ResponseEntity<BillboardDto> response = client.processRequestGet(
-            pm.getProperty("ppk.transaction.base.endpoint") + "/billboards/find/" + code, BillboardDto.class);
+            ppkTransactionBaseEndpoint + "/billboards/find/" + code, BillboardDto.class);
     //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
 }
@@ -182,7 +198,7 @@ public class APIManagerImpl implements APIManager {
     public BillboardDto getBillboardById(String id) {
 
         ResponseEntity<BillboardDto> response = client.processRequestGet(
-                pm.getProperty("ppk.transaction.base.endpoint") + "/billboards/find/id/" + id, BillboardDto.class);
+                ppkTransactionBaseEndpoint + "/billboards/find/id/" + id, BillboardDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
     }
@@ -191,7 +207,7 @@ public class APIManagerImpl implements APIManager {
     public OperatorDto getOperatorById(String id) {
 
         ResponseEntity<OperatorDto> response = client.processRequestGet(
-                pm.getProperty("ppk.operator.base.endpoint") + "/" + id, OperatorDto.class);
+                ppkOperatorBaseEndpoint + "/" + id, OperatorDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
     }
@@ -200,7 +216,7 @@ public class APIManagerImpl implements APIManager {
     public FaceplateDto getFaceplateByFaceplate(String faceplate) {
 
         ResponseEntity<FaceplateDto> response = client.processRequestGet(
-                pm.getProperty("ppk.customer.base.endpoint") + "/faceplate/" + faceplate, FaceplateDto.class);
+            ppkCustomerBaseEndpoint + "/faceplate/" + faceplate, FaceplateDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
     }
@@ -217,7 +233,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("price", transaction.getPrice());
         requestBody.put("action", transaction.getAction());
 
-        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.transaction.base.endpoint") + "/temporal-transaction/create",
+        ResponseEntity<String> response = client.processRequestPost(ppkTransactionBaseEndpoint + "/temporal-transaction/create",
                 requestBody, String.class);
 
         return response.getBody();
@@ -237,7 +253,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("price", transaction.getPrice());
         requestBody.put("closed", transaction.getClosed());
 
-        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.transaction.base.endpoint") + "/create",
+        ResponseEntity<String> response = client.processRequestPost(ppkTransactionBaseEndpoint + "/create",
                 requestBody, String.class);
 
         return response.getBody();
@@ -257,7 +273,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("price", transaction.getPrice());
         requestBody.put("closed", transaction.getClosed());
 
-        ResponseEntity<String> response = client.processRequestPost(pm.getProperty("ppk.transaction.base.endpoint") + "/autorization/create",
+        ResponseEntity<String> response = client.processRequestPost(ppkTransactionBaseEndpoint + "/autorization/create",
                 requestBody, String.class);
 
         return response.getBody();
@@ -273,7 +289,7 @@ public class APIManagerImpl implements APIManager {
     @Override
     public RateDto getRate() {
         ResponseEntity<RateDto> response = client.processRequestGet(
-                pm.getProperty("ppk.transaction.base.endpoint") + "/rate", RateDto.class);
+                ppkTransactionBaseEndpoint + "/rate", RateDto.class);
         LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
     }
@@ -281,9 +297,9 @@ public class APIManagerImpl implements APIManager {
     @Override
     public APIResponse putEndTransactionById(String id) {
 
-        String s = pm.getProperty("ppk.transaction.base.endpoint") + "/status/update/" + id;
+        String s = ppkTransactionBaseEndpoint + "/status/update/" + id;
         ResponseEntity<Object> response = client.processRequestGet(
-                pm.getProperty("ppk.transaction.base.endpoint") + "/status/update/" + id, Object.class);
+                ppkTransactionBaseEndpoint + "/status/update/" + id, Object.class);
 
         return new APIResponse(response.getStatusCode().value(), response.getBody());
 
@@ -292,7 +308,7 @@ public class APIManagerImpl implements APIManager {
     @Override
     public WorkCodeDto getWorkCodeByAuthorizationCode(String workCode) {
         ResponseEntity<WorkCodeDto> response = client.processRequestGet(
-                pm.getProperty("ppk.operator.base.endpoint") + "/work-codes/" + workCode, WorkCodeDto.class);
+                ppkOperatorBaseEndpoint + "/work-codes/" + workCode, WorkCodeDto.class);
         //LOGGER.debug("Response Status=======================  " + response.getStatusCode());
         return response.getBody();
 
@@ -314,7 +330,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("price", transaction.getPrice());
         requestBody.put("closed", transaction.getClosed());
         ResponseEntity<Object> response = client.processRequestPut(
-                pm.getProperty("ppk.transaction.base.endpoint") + "/update",requestBody, Object.class);
+                ppkTransactionBaseEndpoint + "/update",requestBody, Object.class);
 
     }
 
@@ -327,7 +343,7 @@ public class APIManagerImpl implements APIManager {
         requestBody.put("address", billboard.getAddress());
 
         ResponseEntity<Object> response = client.processRequestPut(
-                pm.getProperty("ppk.transaction.base.endpoint") + "/billboards",requestBody, Object.class);
+                ppkTransactionBaseEndpoint + "/billboards",requestBody, Object.class);
 
     }
 
@@ -335,7 +351,7 @@ public class APIManagerImpl implements APIManager {
     public void delleteBillboard(String billboardId) {
 
         ResponseEntity<Object> response = client.processRequestDelete(
-                pm.getProperty("ppk.transaction.base.endpoint") + "/billboards/" + billboardId, Object.class);
+                ppkTransactionBaseEndpoint + "/billboards/" + billboardId, Object.class);
 
     }
 
@@ -343,7 +359,7 @@ public class APIManagerImpl implements APIManager {
     public void deleteTemporalTransaction(String temporalTransactionId) {
 
         ResponseEntity<Object> response = client.processRequestDelete(
-                pm.getProperty("ppk.transaction.base.endpoint") + "/temporal-transaction/delete/" + temporalTransactionId, Object.class);
+                ppkTransactionBaseEndpoint + "/temporal-transaction/delete/" + temporalTransactionId, Object.class);
 
     }
 }

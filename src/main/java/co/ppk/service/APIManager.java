@@ -1,5 +1,8 @@
 package co.ppk.service;
 
+import co.ppk.dto.APIResponse;
+import co.ppk.dto.PaymentRequestDto;
+import co.ppk.dto.PaymentServiceDto;
 import co.ppk.dto.*;
 import co.ppk.model.PaymentInfoRequest;
 
@@ -10,34 +13,34 @@ public interface APIManager {
 
     BalanceDto getCustomerBalance(String customerId);
 
-    String createCustomer(CustomerDto customer);
+    SimpleResponseDto createCustomer(UserDto customer);
 
     String setFaceplate(FaceplateDto faceplate);
 
-    CustomerDto getCustomerByIdentification(String identification);
+    UserDto getCustomerByIdentification(String identification);
 
-    APIResponse createCompany(CustomerDto customer);
+    APIResponse createCompany(UserDto customer);
 
-    TransactionTDto getInitTransactionByFacePlate (String faceplate);
+    TransactionTDto getInitTransactionByFacePlate(String faceplate);
 
-    TransactionTDto getEndTransactionByFacePlate (String faceplate);
+    TransactionTDto getEndTransactionByFacePlate(String faceplate);
 
-    TransactionDto getConfirmedTransactionByFacePlate (String faceplate);
+    TransactionDto getConfirmedTransactionByFacePlate(String faceplate);
 
-    String setConfirmedInitTransactionByFacePlate (TransactionDto transaction);
+    String setConfirmedInitTransactionByFacePlate(TransactionDto transaction);
 
-    String setAutorizationInitTransactionByFacePlate (TransactionDto transaction);
+    String setAutorizationInitTransactionByFacePlate(TransactionDto transaction);
 
 
     APIResponse getConfirmedEndTransactionByFacePlate(String faceplate);
 
-    BillboardDto getBillboardByCode (String code);
-    BillboardDto getBillboardById (String id);
+    BillboardDto getBillboardByCode(String code);
+    BillboardDto getBillboardById(String id);
 
 
-    APIResponse setEndTransaction (TransactionTDto endTransaction);
+    APIResponse setEndTransaction(TransactionTDto endTransaction);
 
-    String setTemporalTransaction (TransactionTDto transaction);
+    String setTemporalTransaction(TransactionTDto transaction);
 
     RateDto getRate();
 
@@ -47,11 +50,11 @@ public interface APIManager {
 
     OperatorDto getOperatorById(String id);
 
-    FaceplateDto getFaceplateByFaceplate (String faceplate);
+    FaceplateDto getFaceplateByFaceplate(String faceplate);
 
     void updateTransaction(TransactionDto transaction);
     void updateBillboard(BillboardDto billboard);
-    void deleteTemporalTransaction (String id);
+    void deleteTemporalTransaction(String id);
     void delleteBillboard(String billboardId);
 
 

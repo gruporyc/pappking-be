@@ -1,15 +1,11 @@
 package co.ppk.utilities;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import co.ppk.exception.DataNotFound;
-import co.ppk.exception.PpkException;
 import co.ppk.exception.IncorrectParameter;
+import co.ppk.exception.PpkException;
+import co.ppk.exception.DataNotFound;
+import co.ppk.exception.IncorrectParameter;
+import co.ppk.exception.PpkException;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -21,6 +17,8 @@ import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import java.util.*;
 
 /**
  * Main component responsible of handling access to property files in a simple
