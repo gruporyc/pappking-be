@@ -1,12 +1,11 @@
 package co.ppk.repository;
 
-import java.util.Optional;
-
 import co.ppk.enums.RoleName;
+import co.ppk.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import co.ppk.model.Role;
+import java.util.Optional;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {

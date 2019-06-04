@@ -1,21 +1,15 @@
 package co.ppk.controller;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.validation.Valid;
-
+import co.ppk.dto.LoginDto;
 import co.ppk.dto.SimpleResponseDto;
 import co.ppk.dto.UserDto;
-import co.ppk.message.response.JwtResponse;
+import co.ppk.enums.RoleName;
+import co.ppk.model.Role;
+import co.ppk.model.User;
+import co.ppk.repository.RoleRepository;
+import co.ppk.repository.UserRepository;
 import co.ppk.security.jwt.JwtProvider;
 import co.ppk.service.BusinessManager;
-import co.ppk.dto.UserDto;
-import co.ppk.dto.LoginDto;
-import co.ppk.enums.RoleName;
-import co.ppk.service.BusinessManager;
-import com.sun.xml.internal.bind.v2.TODO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +18,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import co.ppk.message.response.JwtResponse;
-import co.ppk.model.Role;
-import co.ppk.model.User;
-import co.ppk.repository.RoleRepository;
-import co.ppk.repository.UserRepository;
-import co.ppk.security.jwt.JwtProvider;
+import javax.validation.Valid;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static co.ppk.utilities.Constants.TOKEN_TYPE;
 

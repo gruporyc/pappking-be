@@ -9,7 +9,6 @@
  ******************************************************************/
 package co.ppk.controller;
 
-import co.ppk.exception.PpkFieldValidationException;
 import co.ppk.enums.ResponseKeyName;
 import co.ppk.exception.PpkFieldValidationException;
 import org.springframework.http.ResponseEntity;

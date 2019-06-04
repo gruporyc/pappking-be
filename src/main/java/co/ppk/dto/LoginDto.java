@@ -2,9 +2,6 @@ package co.ppk.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
 public class LoginDto {
 //  @NotBlank
 //  @Size(min=3, max = 60)

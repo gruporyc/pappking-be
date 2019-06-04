@@ -10,7 +10,7 @@ public class Message {
     private String responseId;
 
     @NotNull
-    private  QueryResult queryResult;
+    private QueryResult queryResult;
 
     @NotNull
     private String session;

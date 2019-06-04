@@ -1,6 +1,8 @@
 package co.ppk.security;
 
+import co.ppk.security.jwt.JwtAuthEntryPoint;
 import co.ppk.security.jwt.JwtAuthTokenFilter;
+import co.ppk.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,10 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import co.ppk.security.jwt.JwtAuthEntryPoint;
-import co.ppk.security.jwt.JwtAuthTokenFilter;
-import co.ppk.security.services.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity

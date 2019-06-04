@@ -12,8 +12,6 @@ package co.ppk.controller;
 
 import co.ppk.dto.*;
 import co.ppk.service.BusinessManager;
-import co.ppk.dto.*;
-import co.ppk.service.BusinessManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +42,7 @@ public class ProxyEndpointController extends BaseRestController {
 	private static final String CURRENT_USER_LOCALE = "language";
 
 	@Autowired
-  BusinessManager businessManager;
+    BusinessManager businessManager;
 
 	/**
 	 * entry endpoint receiving the message from messaging API to perform proper action
@@ -57,7 +55,7 @@ public class ProxyEndpointController extends BaseRestController {
 
 	@RequestMapping(value = "/message", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> processMessage(@RequestHeader(required = false, value = CURRENT_USER_LOCALE) String language,
-																							 @RequestBody Message message, BindingResult result, HttpServletRequest request) {
+                                                 @RequestBody Message message, BindingResult result, HttpServletRequest request) {
        // messageValidator.validate(message, result);
 		System.out.println("------------------------------------------------------------------- ");
 

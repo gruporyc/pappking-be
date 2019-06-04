@@ -1,8 +1,6 @@
 package co.ppk.service;
 
 
-import co.ppk.dto.PaymentRequestDto;
-import co.ppk.dto.PaymentServiceDto;
 import co.ppk.dto.*;
 
 public interface BusinessManager {
